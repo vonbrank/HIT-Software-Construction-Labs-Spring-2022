@@ -143,16 +143,16 @@ public class MagicSquare {
 
         int magic[][] = new int[n][n];
         int row = 0, col = n / 2, i, j, square = n * n;
-        for (i = 1; i <= square; i++) {
+        for (i = 1; i <= square; i++) { // 每次向方阵中填一个数，迭代 n * n 次
             magic[row][col] = i;
-            if (i % n == 0)
+            if (i % n == 0) // 如果左上方已经填入一个数，即 i 可以被 n 整除，则从下一行开始填
                 row++;
-            else {
-                if (row == 0)
+            else {  // 否则下一个数的位置是当前数的左上方
+                if (row == 0)   // 若已经到方阵顶端，则下一个数在方阵底端，否则在当前行的上一行
                     row = n - 1;
                 else
                     row--;
-                if (col == (n - 1))
+                if (col == (n - 1)) // 若已经到达方阵右端，则下一个数在方阵最左端，否则在当前列的右一列
                     col = 0;
                 else
                     col++;
