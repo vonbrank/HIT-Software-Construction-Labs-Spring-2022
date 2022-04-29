@@ -6,7 +6,7 @@ group = "org.example"
 version = "1.0-SNAPSHOT"
 
 sourceSets {
-    create("P1") {
+    val p1 = create("P1") {
         java.srcDir("./src/P1")
     }
 
@@ -21,7 +21,13 @@ sourceSets {
     }
 
     test {
-        java.srcDir("./test")
+        java.srcDir("./src/test")
+    }
+
+    create("P1Test") {
+        java.srcDir("./test/P1")
+        compileClasspath += configurations.testCompileClasspath + p1.output
+        runtimeClasspath += configurations.testRuntimeClasspath + p1.output
     }
 
     create("P3Test") {
