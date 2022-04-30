@@ -5,8 +5,7 @@ package turtle;
 
 import turtle.Vector.Vector2;
 
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class TurtleSoup {
 
@@ -87,10 +86,9 @@ public class TurtleSoup {
     public static double calculateBearingToPoint(double currentBearing, int currentX, int currentY, int targetX, int targetY) {
         Vector2 defaultDir = new Vector2(0, 1);
         Vector2 targetDir = (new Vector2(targetX - currentX, targetY - currentY)).normalize();
-        double absDiffAngle = (Math.acos(Vector2.dot(defaultDir, targetDir).norm())) * 180 / Math.PI;
-        double bearingAdjustment;
-        if (targetDir.x() > 0) bearingAdjustment = absDiffAngle - currentBearing;
-        else bearingAdjustment = -absDiffAngle - currentBearing;
+        double angleDiff = (Math.acos(Vector2.dot(defaultDir, targetDir))) * 180 / Math.PI;
+        if (Vector2.cross(targetDir, defaultDir).z() < 0) angleDiff = -angleDiff;
+        double bearingAdjustment = angleDiff - currentBearing;
         while (bearingAdjustment < 0) bearingAdjustment += 360;
         return bearingAdjustment;
     }
@@ -110,7 +108,19 @@ public class TurtleSoup {
      * otherwise of size (# of points) - 1
      */
     public static List<Double> calculateBearings(List<Integer> xCoords, List<Integer> yCoords) {
-        throw new RuntimeException("implement me!");
+
+        Vector2 currentDir = new Vector2(0, 1);
+        List<Double> res = new ArrayList<>();
+        for (int i = 0; i < xCoords.size() - 1; i++) {
+            Vector2 nextDir = (new Vector2(xCoords.get(i + 1) - xCoords.get(i), yCoords.get(i + 1) - yCoords.get(i))).normalize();
+            double angleDiff = Math.acos(Vector2.dot(currentDir, nextDir)) * 180.0 / Math.PI;
+            if (Vector2.cross(nextDir, currentDir).z() < 0) angleDiff = -angleDiff;
+            while (angleDiff < 0) angleDiff += 360;
+            res.add(angleDiff);
+            currentDir = nextDir;
+        }
+
+        return res;
     }
 
     /**
@@ -122,7 +132,51 @@ public class TurtleSoup {
      * @return minimal subset of the input points that form the vertices of the perimeter of the convex hull
      */
     public static Set<Point> convexHull(Set<Point> points) {
-        throw new RuntimeException("implement me!");
+        if (points.size() <= 2) return new HashSet<>(points);
+        List<Point> pointsList = new ArrayList<>(points);
+        Set<Point> res = new HashSet<>();
+
+        int originalPointIndex = 0;
+        for (int i = 1; i < pointsList.size(); i++) {
+            if (pointsList.get(i).y() < pointsList.get(originalPointIndex).y()) {
+                originalPointIndex = i;
+            }
+        }
+
+        int firstPointIndex = -1;
+        int secondPointIndex = originalPointIndex;
+        int thirdPointIndex = -1;
+        Vector2 indentDir = new Vector2(-1, 0);
+        double maxAngleDiff = 0;
+        double maxDirNorm = 0;
+
+        do {
+            maxAngleDiff = 0;
+            for (int i = 0; i < pointsList.size(); i++) {
+                if (i == firstPointIndex || i == secondPointIndex) continue;
+                double currentAngleDiff =
+                        Vector2.getAngleDiff(new Vector2(pointsList.get(secondPointIndex), pointsList.get(i)), indentDir);
+                double currentDirNorm = (new Vector2(pointsList.get(secondPointIndex), pointsList.get(i))).norm();
+                if (currentAngleDiff > maxAngleDiff) {
+                    maxAngleDiff = currentAngleDiff;
+                    thirdPointIndex = i;
+                    maxDirNorm = currentDirNorm;
+                }
+
+                if (Math.abs(currentAngleDiff - maxAngleDiff) < 1e-3 && (currentDirNorm > maxDirNorm)) {
+                    maxAngleDiff = currentAngleDiff;
+                    thirdPointIndex = i;
+                    maxDirNorm = currentDirNorm;
+                }
+
+            }
+            res.add(pointsList.get(secondPointIndex));
+            firstPointIndex = secondPointIndex;
+            secondPointIndex = thirdPointIndex;
+            indentDir = new Vector2(pointsList.get(secondPointIndex), pointsList.get(firstPointIndex));
+        } while (thirdPointIndex != originalPointIndex);
+
+        return res;
     }
 
     /**
@@ -134,7 +188,8 @@ public class TurtleSoup {
      * @param turtle the turtle context
      */
     public static void drawPersonalArt(Turtle turtle) {
-        throw new RuntimeException("implement me!");
+
+        drawRegularPolygon(turtle, 6, 80);
     }
 
     /**
@@ -148,7 +203,6 @@ public class TurtleSoup {
         DrawableTurtle turtle = new DrawableTurtle();
 
         drawSquare(turtle, 40);
-//        drawRegularPolygon(turtle, 6, 80);
 
         // draw the window
         turtle.draw();

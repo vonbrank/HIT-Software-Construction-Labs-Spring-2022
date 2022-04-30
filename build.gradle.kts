@@ -30,6 +30,12 @@ sourceSets {
         runtimeClasspath += configurations.testRuntimeClasspath + p1.output
     }
 
+    create("P2Test") {
+        java.srcDir("./test/P2")
+        compileClasspath += configurations.testCompileClasspath + p2.output
+        runtimeClasspath += configurations.testRuntimeClasspath + p2.output
+    }
+
     create("P3Test") {
         java.srcDir("./test/P3")
         compileClasspath += configurations.testCompileClasspath + p3.output

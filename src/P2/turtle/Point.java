@@ -13,6 +13,7 @@ public class Point {
 
     /**
      * Construct a point at the given coordinates.
+     *
      * @param x x-coordinate
      * @param y y-coordinate
      */
@@ -33,5 +34,10 @@ public class Point {
      */
     public double y() {
         return y;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("[%f, %f]", x, y);
     }
 }
