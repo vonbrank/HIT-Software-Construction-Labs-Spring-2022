@@ -11,7 +11,7 @@ import org.junit.Test;
  * JUnit tests for RulesOf6005.
  */
 public class RulesOf6005Test {
-    
+
     /**
      * Tests the mayUseCodeInAssignment method.
      */

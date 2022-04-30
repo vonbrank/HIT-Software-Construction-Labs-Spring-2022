@@ -10,7 +10,7 @@ sourceSets {
         java.srcDir("./src/P1")
     }
 
-    create("P2") {
+    val p2 = create("P2") {
         java.srcDir("./src/P2")
         compileClasspath += configurations.testCompileClasspath
         runtimeClasspath += configurations.testRuntimeClasspath
