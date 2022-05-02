@@ -189,7 +189,19 @@ public class TurtleSoup {
      */
     public static void drawPersonalArt(Turtle turtle) {
 
-        drawRegularPolygon(turtle, 6, 80);
+//        drawRegularPolygon(turtle, 6, 80);
+//        drawHelix(turtle, 3, 2.2, 512, 1);
+        drawHelix(turtle, 3, 2.2, 384, 2);
+//        drawHelix(turtle, 5, 0.5, 256, 1);
+//        drawHelix(turtle, 4, 0.8, 256, 2);
+    }
+
+    public static void drawHelix(Turtle turtle, int sides, double offset, int iterations, int step) {
+        double angle = (180 - calculateRegularPolygonAngle(sides)) + offset;
+        for (int i = 1; i <= iterations; i += step) {
+            turtle.forward(i);
+            turtle.turn(angle);
+        }
     }
 
     /**
@@ -202,7 +214,8 @@ public class TurtleSoup {
     public static void main(String args[]) {
         DrawableTurtle turtle = new DrawableTurtle();
 
-        drawSquare(turtle, 40);
+//        drawSquare(turtle, 40);
+        drawPersonalArt(turtle);
 
         // draw the window
         turtle.draw();
