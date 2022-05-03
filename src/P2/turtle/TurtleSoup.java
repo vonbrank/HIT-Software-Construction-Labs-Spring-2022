@@ -138,7 +138,10 @@ public class TurtleSoup {
 
         int originalPointIndex = 0;
         for (int i = 1; i < pointsList.size(); i++) {
-            if (pointsList.get(i).y() < pointsList.get(originalPointIndex).y()) {
+            if (pointsList.get(i).y() < pointsList.get(originalPointIndex).y() ||
+                    (Math.abs(pointsList.get(i).y() - pointsList.get(originalPointIndex).y()) < 1e-3 &&
+                            pointsList.get(i).x() < pointsList.get(originalPointIndex).x())
+            ) {
                 originalPointIndex = i;
             }
         }

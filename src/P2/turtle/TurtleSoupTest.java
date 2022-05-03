@@ -89,6 +89,8 @@ public class TurtleSoupTest {
         Point p12 = new Point(1, 2);
         Point p23 = new Point(2, 3);
         Point p32 = new Point(3, 2);
+        Point p21 = new Point(2, 1);
+        Point p31 = new Point(3, 1);
 
         points.add(p11);
         convexHull.add(p11);
@@ -111,5 +113,16 @@ public class TurtleSoupTest {
         points.add(p32);
         convexHull.add(p32);
         assertEquals(convexHull, TurtleSoup.convexHull(points));
+
+        points.add(p21);
+        convexHull.add(p21);
+        assertEquals(convexHull, TurtleSoup.convexHull(points));
+
+        points.add(p31);
+        convexHull.add(p31);
+        convexHull.remove(p32);
+        convexHull.remove(p21);
+        assertEquals(convexHull, TurtleSoup.convexHull(points));
+
     }
 }
