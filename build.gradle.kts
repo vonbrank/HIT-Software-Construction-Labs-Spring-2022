@@ -2,22 +2,42 @@ plugins {
     id("java")
 }
 
-group = "org.example"
-version = "1.0-SNAPSHOT"
+group = "com.vonbrank.Lab-1"
+version = "1.0"
 
 sourceSets {
     val p1 = create("P1") {
         java.srcDir("./src/P1")
+        task<Jar>("jarP1") {
+            archiveBaseName.set("P1")
+            manifest.attributes("Main-Class" to "MagicSquare")
+            dependsOn(runtimeClasspath)
+            from(runtimeClasspath)
+        }
     }
 
     val p2 = create("P2") {
         java.srcDir("./src/P2")
         compileClasspath += configurations.testCompileClasspath
         runtimeClasspath += configurations.testRuntimeClasspath
+
+        task<Jar>("jarP2") {
+            archiveBaseName.set("P2")
+            manifest.attributes("Main-Class" to "turtle.TurtleSoup")
+            dependsOn(runtimeClasspath)
+            from(runtimeClasspath)
+        }
     }
 
     val p3 = create("P3") {
         java.srcDir("./src/P3")
+
+        task<Jar>("jarP3") {
+            archiveBaseName.set("P3")
+            manifest.attributes("Main-Class" to "FriendshipGraph")
+            dependsOn(runtimeClasspath)
+            from(runtimeClasspath)
+        }
     }
 
     test {
@@ -44,6 +64,8 @@ sourceSets {
 
 
 }
+
+tasks["build"].dependsOn("jarP1", "jarP2", "jarP3")
 
 java {
     sourceCompatibility = org.gradle.api.JavaVersion.VERSION_11
