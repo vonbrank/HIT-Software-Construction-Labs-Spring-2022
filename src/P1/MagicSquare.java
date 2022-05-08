@@ -4,6 +4,7 @@ import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
@@ -45,7 +46,8 @@ public class MagicSquare {
         String filePathString = getFullPathString(relativePathStringToTxt, fileName);
         int lengthOfSide;
         List<String> squareStringsBuffer = new ArrayList<>();
-        try (Stream<String> stream = Files.lines(Path.of(filePathString), StandardCharsets.UTF_8)) {
+        Path filePath = Paths.get(filePathString);
+        try (Stream<String> stream = Files.lines(filePath, StandardCharsets.UTF_8)) {
             stream.forEach(squareStringsBuffer::add);
         } catch (IOException e) {
             System.out.println("Read file error! Make sure you are running the program at the right working directory.");
