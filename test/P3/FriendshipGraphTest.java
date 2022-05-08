@@ -1,5 +1,7 @@
 import org.junit.Test;
 
+import static org.junit.Assert.*;
+
 public class FriendshipGraphTest {
     @Test
     public void friendshipGraphFeatureTest() {
@@ -16,13 +18,9 @@ public class FriendshipGraphTest {
         graph.addEdge(ross, rachel);
         graph.addEdge(ross, ben);
         graph.addEdge(ben, ross);
-        System.out.println(graph.getDistance(rachel, ross));
-        //should print 1
-        System.out.println(graph.getDistance(rachel, ben));
-        //should print 2
-        System.out.println(graph.getDistance(rachel, rachel));
-        //should print 0
-        System.out.println(graph.getDistance(rachel, kramer));
-        //should print -1
+        assertEquals(1, graph.getDistance(rachel, ross));
+        assertEquals(2, graph.getDistance(rachel, ben));
+        assertEquals(0, graph.getDistance(rachel, rachel));
+        assertEquals(-1, graph.getDistance(rachel, kramer));
     }
 }

@@ -1,4 +1,5 @@
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class FriendshipGraph {
 
@@ -8,7 +9,11 @@ public class FriendshipGraph {
         peopleList = new ArrayList<>();
     }
 
-    public void addVertex(Person person) {
+    public void addVertex(Person person) throws RuntimeException {
+        peopleList.forEach(p -> {
+            if (person.getName().equals(p.getName()))
+                throw new RuntimeException("Each person has a unique name!");
+        });
         peopleList.add(person);
     }
 
@@ -37,6 +42,14 @@ public class FriendshipGraph {
         return -1;
     }
 
+    public Person getPerson(String personName) {
+        Person res = null;
+        for (Person person : peopleList) {
+            if (person.getName().equals(personName)) res = person;
+        }
+        return res;
+    }
+
     private static class PersonQueueNode {
         private final Person person;
         private final int step;
@@ -58,8 +71,53 @@ public class FriendshipGraph {
 
     public static void main(String[] args) {
         FriendshipGraph graph = new FriendshipGraph();
+        Scanner scanner = new Scanner(System.in);
+
+        /*
+        * > addVertex Rachel
+        > addVertex Ross
+        > addEdge Rachel Ross
+        > getDistance Rachel Ross
+        * */
+
+        while (true) {
+            System.out.print("> ");
+            String command = scanner.nextLine();
+            List<String> commandArgs = List.of(command.split(" "));
+            if (commandArgs.size() < 1) continue;
+            if (commandArgs.get(0).equals("addVertex")) {
+                if (commandArgs.size() < 2) continue;
+                Person person = new Person(commandArgs.get(1));
+                try {
+                    graph.addVertex(person);
+                } catch (RuntimeException e) {
+                    System.out.println(e);
+                    break;
+                }
+            } else if (commandArgs.get(0).equals("addEdge")) {
+                if (commandArgs.size() < 3) continue;
+                graph.addEdge(
+                        graph.getPerson(commandArgs.get(1)),
+                        graph.getPerson(commandArgs.get(2))
+                );
+            } else if (commandArgs.get(0).equals("getDistance")) {
+                if (commandArgs.size() < 3) continue;
+                System.out.println(graph.getDistance(
+                        graph.getPerson(commandArgs.get(1)),
+                        graph.getPerson(commandArgs.get(2))
+                ));
+            } else if (commandArgs.get(0).equals("help")) {
+                System.out.println("Command List:");
+                System.out.println("\taddVertex <Person Name>");
+                System.out.println("\taddEdge <Person 1 Name> <Person 2 Name>");
+                System.out.println("\tgetDistance <Person 1 Name> <Person 2 Name>");
+
+            } else if (commandArgs.get(0).equals("quit")) break;
+        }
+/*
         Person rachel = new Person("Rachel");
-        Person ross = new Person("Ross");
+//        Person ross = new Person("Ross");
+        Person ross = new Person("Rachel");
         Person ben = new Person("Ben");
         Person kramer = new Person("Kramer");
         graph.addVertex(rachel);
@@ -78,6 +136,7 @@ public class FriendshipGraph {
         //should print 0
         System.out.println(graph.getDistance(rachel, kramer));
         //should print -1
+        */
     }
 
 }

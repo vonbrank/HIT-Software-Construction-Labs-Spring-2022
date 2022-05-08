@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 public class MagicSquare {
 
@@ -14,9 +15,9 @@ public class MagicSquare {
     public static void main(String[] args) throws IOException {
         testTheGivenSquares();
 
-        if (generateMagicSquare(-1)) {
+        if (generateMagicSquare(9)) {
             String fileName = "6.txt";
-            if (isLegalMagicSquare(getFullPathString(relativePathStringToTxt, fileName)))
+            if (isLegalMagicSquare(fileName))
                 System.out.printf("%s is a legal magic square.\n", fileName);
             else
                 System.out.printf("%s is not a legal magic square.\n", fileName);
@@ -33,19 +34,24 @@ public class MagicSquare {
         fileNames.add("5.txt");
 
         for (String fileName : fileNames) {
-            String filePathString = getFullPathString(relativePathStringToTxt, fileName);
-            if (isLegalMagicSquare(filePathString)) System.out.printf("%s is a legal magic square.\n", fileName);
+            if (isLegalMagicSquare(fileName)) System.out.printf("%s is a legal magic square.\n", fileName);
             else System.out.printf("%s is not a legal magic square.\n", fileName);
             System.out.println();
         }
 
     }
 
-    public static boolean isLegalMagicSquare(String fileName) throws IOException {
-
+    public static boolean isLegalMagicSquare(String fileName) {
+        String filePathString = getFullPathString(relativePathStringToTxt, fileName);
         int lengthOfSide;
         List<String> squareStringsBuffer = new ArrayList<>();
-        Files.lines(Path.of(fileName), StandardCharsets.UTF_8).forEach(squareStringsBuffer::add);
+        try (Stream<String> stream = Files.lines(Path.of(filePathString), StandardCharsets.UTF_8)) {
+            stream.forEach(squareStringsBuffer::add);
+        } catch (IOException e) {
+            System.out.println("Read file error! Make sure you are running the program at the right working directory.");
+        }
+
+
         lengthOfSide = squareStringsBuffer.size();
         int[][] square = new int[lengthOfSide][lengthOfSide];
 

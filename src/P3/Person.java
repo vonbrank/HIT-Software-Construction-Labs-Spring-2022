@@ -21,4 +21,8 @@ public class Person {
     public int getNumberOfFriends() {
         return friendsList.size();
     }
+
+    public String getName() {
+        return name;
+    }
 }
