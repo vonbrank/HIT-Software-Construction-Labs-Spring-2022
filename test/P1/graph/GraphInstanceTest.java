@@ -59,7 +59,8 @@ public abstract class GraphInstanceTest {
         assertEquals(0, graph.set("0", "2", 1));
         assertEquals(0, graph.set("0", "4", 4));
         assertEquals(0, graph.set("0", "5", 2));
-        assertEquals(1, graph.set("0", "2", 4));
+        assertEquals(1, graph.set("0", "2", 0));
+        assertEquals(0, graph.set("0", "2", 4));
         assertEquals(0, graph.set("1", "4", 8));
         assertEquals(0, graph.set("1", "5", 5));
         assertEquals(0, graph.set("2", "3", 7));
