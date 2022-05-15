@@ -72,8 +72,8 @@ public abstract class GraphInstanceTest {
         assertTrue(graph.remove("1"));
         assertFalse(graph.remove("6"));
 
-        assertEquals(Map.of("5", 2, "4", 4, "2", 4), graph.sources("0"));
-        assertEquals(Map.of("0", 4, "2", 3), graph.targets("4"));
+        assertEquals(Map.of("0", 4, "2", 3), graph.sources("4"));
+        assertEquals(Map.of("5", 2, "4", 4, "2", 4), graph.targets("0"));
 
     }
 

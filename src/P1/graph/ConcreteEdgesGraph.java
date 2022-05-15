@@ -57,10 +57,10 @@ public class ConcreteEdgesGraph implements Graph<String> {
             return previousWeight.get();
         }
 
-        for (Edge edge : edges) {
-            if (edge.getSource().equals(source) && edge.getTarget().equals(target)) {
-                int previousWeight = edge.getWeight();
-                edge.setWeight(weight);
+        for (int i = 0; i < edges.size(); i++) {
+            if (edges.get(i).getSource().equals(source) && edges.get(i).getTarget().equals(target)) {
+                int previousWeight = edges.get(i).getWeight();
+                edges.set(i, edges.get(i).setWeight(weight));
                 return previousWeight;
             }
         }
@@ -110,9 +110,9 @@ public class ConcreteEdgesGraph implements Graph<String> {
 class Edge {
 
     // TODO fields
-    private String source;
-    private String target;
-    private int weight;
+    private final String source;
+    private final String target;
+    private final int weight;
 
     // Abstraction function:
     //   AF(source, target, weight) = an edge from source to target has a weight.
@@ -120,8 +120,8 @@ class Edge {
     //   source and target are Strings
     //   weight is the weight of the edge and must be positive. Once the weight is zero, the edge should not exist
     // Safety from rep exposure:
-    //   source and target are String, so are guaranteed immutable
-    //   all fields are private
+    //   source and target are String, so are guaranteed immutable.
+    //   the whole Edge class is immutable, so all fields are private final
 
     // TODO constructor
 
@@ -182,8 +182,8 @@ class Edge {
      *
      * @param weight set the weight of the Edge with the param weight
      */
-    public void setWeight(int weight) {
-        this.weight = weight;
+    public Edge setWeight(int weight) {
+        return new Edge(source, target, weight);
     }
 
     // TODO toString()

@@ -60,7 +60,7 @@ public class ConcreteVerticesGraph implements Graph<String> {
         if (sourceVertex != null) {
             previousWeight = sourceVertex.getWeight(target);
             if (weight == 0) sourceVertex.removeEdge(target);
-            else sourceVertex.setWeight(target, weight);
+            else sourceVertex.addEdge(target, weight);
         }
         return previousWeight;
     }
@@ -122,8 +122,8 @@ public class ConcreteVerticesGraph implements Graph<String> {
 class Vertex {
 
     // TODO fields
-    private String label;
-    private Map<String, Integer> edges;
+    private final String label;
+    private final Map<String, Integer> edges;
 
     // Abstraction function:
     //   TODO
@@ -163,10 +163,6 @@ class Vertex {
             edges.remove(target);
         }
         return previousWeight;
-    }
-
-    public void setWeight(String target, int weight) {
-        edges.put(target, weight);
     }
 
     public Map<String, Integer> getEdges() {
