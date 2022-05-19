@@ -12,10 +12,10 @@ import java.util.stream.Collectors;
  *
  * <p>PS2 instructions: you MUST use the provided rep.
  */
-public class ConcreteEdgesGraph implements Graph<String> {
+public class ConcreteEdgesGraph<L> implements Graph<L> {
 
-    private final Set<String> vertices = new HashSet<>();
-    private final List<Edge> edges = new ArrayList<>();
+    private final Set<L> vertices = new HashSet<>();
+    private final List<Edge<L>> edges = new ArrayList<>();
 
     // Abstraction function:
     //   AF(vertices, edges) = a graph with all vertices in the filed vertices and all the edges in the filed edges.
@@ -34,14 +34,14 @@ public class ConcreteEdgesGraph implements Graph<String> {
     // TODO checkRep
 
     @Override
-    public boolean add(String vertex) {
+    public boolean add(L vertex) {
         if (vertices.contains(vertex)) return false;
         else vertices.add(vertex);
         return true;
     }
 
     @Override
-    public int set(String source, String target, int weight) {
+    public int set(L source, L target, int weight) {
         add(source);
         add(target);
 
@@ -65,31 +65,31 @@ public class ConcreteEdgesGraph implements Graph<String> {
             }
         }
 
-        edges.add(new Edge(source, target, weight));
+        edges.add(new Edge<L>(source, target, weight));
         return 0;
     }
 
     @Override
-    public boolean remove(String vertex) {
+    public boolean remove(L vertex) {
         if (!vertices.contains(vertex)) return false;
         edges.removeIf(edge -> (edge.getSource().equals(vertex) || edge.getTarget().equals(vertex)));
         return true;
     }
 
     @Override
-    public Set<String> vertices() {
+    public Set<L> vertices() {
         return new HashSet<>(vertices);
     }
 
     @Override
-    public Map<String, Integer> sources(String target) {
+    public Map<L, Integer> sources(L target) {
         return edges.stream()
                 .filter(edge -> edge.getTarget().equals(target))
                 .collect(Collectors.toMap(Edge::getSource, Edge::getWeight));
     }
 
     @Override
-    public Map<String, Integer> targets(String source) {
+    public Map<L, Integer> targets(L source) {
         return edges.stream()
                 .filter(edge -> edge.getSource().equals(source))
                 .collect(Collectors.toMap(Edge::getTarget, Edge::getWeight));
@@ -97,6 +97,14 @@ public class ConcreteEdgesGraph implements Graph<String> {
 
     // TODO toString()
 
+
+    @Override
+    public String toString() {
+        return "ConcreteEdgesGraph{" +
+                "vertices=" + vertices +
+                ", edges=" + edges +
+                '}';
+    }
 }
 
 /**
@@ -107,11 +115,11 @@ public class ConcreteEdgesGraph implements Graph<String> {
  * <p>PS2 instructions: the specification and implementation of this class is
  * up to you.
  */
-class Edge {
+class Edge<L> {
 
     // TODO fields
-    private final String source;
-    private final String target;
+    private final L source;
+    private final L target;
     private final int weight;
 
     // Abstraction function:
@@ -132,7 +140,7 @@ class Edge {
      * @param target the target of the Edge
      * @param weight the weight of the Edge
      */
-    Edge(String source, String target, int weight) {
+    Edge(L source, L target, int weight) {
         this.source = source;
         this.target = target;
         this.weight = weight;
@@ -154,7 +162,7 @@ class Edge {
      *
      * @return return the label of the source of the Edge
      */
-    public String getSource() {
+    public L getSource() {
         return source;
     }
 
@@ -164,7 +172,7 @@ class Edge {
      *
      * @return return the label of the target of the Edge
      */
-    public String getTarget() {
+    public L getTarget() {
         return target;
     }
 
@@ -182,8 +190,8 @@ class Edge {
      *
      * @param weight set the weight of the Edge with the param weight
      */
-    public Edge setWeight(int weight) {
-        return new Edge(source, target, weight);
+    public Edge<L> setWeight(int weight) {
+        return new Edge<L>(source, target, weight);
     }
 
     // TODO toString()
