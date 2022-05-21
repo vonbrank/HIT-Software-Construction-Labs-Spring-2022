@@ -18,6 +18,8 @@ sourceSets {
 
     val p2 = create("P2") {
         java.srcDir("./src/P2")
+        compileClasspath += p1.output
+        runtimeClasspath += p1.output
         task<Jar>("jarP2") {
             archiveBaseName.set("P2")
             manifest.attributes("Main-Class" to "FriendshipGraph")
@@ -34,8 +36,8 @@ sourceSets {
 
     create("P2Test") {
         java.srcDir("./test/P2")
-        compileClasspath += configurations.testCompileClasspath + p2.output
-        runtimeClasspath += configurations.testRuntimeClasspath + p2.output
+        compileClasspath += configurations.testCompileClasspath + p1.output + p2.output
+        runtimeClasspath += configurations.testRuntimeClasspath + p1.output + p2.output
     }
 }
 
