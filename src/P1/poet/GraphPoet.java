@@ -5,12 +5,20 @@ package poet;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Stream;
 
 import graph.Graph;
 
 /**
  * A graph-based poetry generator.
- * 
+ *
  * <p>GraphPoet is initialized with a corpus of text, which it uses to derive a
  * word affinity graph.
  * Vertices in the graph are words. Words are defined as non-empty
@@ -18,7 +26,7 @@ import graph.Graph;
  * delimited in the corpus by spaces, newlines, or the ends of the file.
  * Edges in the graph count adjacencies: the number of times "w1" is followed by
  * "w2" in the corpus is the weight of the edge from w1 to w2.
- * 
+ *
  * <p>For example, given this corpus:
  * <pre>    Hello, HELLO, hello, goodbye!    </pre>
  * <p>the graph would contain two edges:
@@ -26,7 +34,7 @@ import graph.Graph;
  *     <li> ("hello,") -> ("goodbye!") with weight 1 </ul>
  * <p>where the vertices represent case-insensitive {@code "hello,"} and
  * {@code "goodbye!"}.
- * 
+ *
  * <p>Given an input string, GraphPoet generates a poem by attempting to
  * insert a bridge word between every adjacent pair of words in the input.
  * The bridge word between input words "w1" and "w2" will be some "b" such that
@@ -36,14 +44,14 @@ import graph.Graph;
  * In the output poem, input words retain their original case, while bridge
  * words are lower case. The whitespace between every word in the poem is a
  * single space.
- * 
+ *
  * <p>For example, given this corpus:
  * <pre>    This is a test of the Mugar Omni Theater sound system.    </pre>
  * <p>on this input:
  * <pre>    Test the system.    </pre>
  * <p>the output poem would be:
  * <pre>    Test of the system.    </pre>
- * 
+ *
  * <p>PS2 instructions: this is a required ADT class, and you MUST NOT weaken
  * the required specifications. However, you MAY strengthen the specifications
  * and you MAY add additional methods.
@@ -51,38 +59,94 @@ import graph.Graph;
  * class is up to you.
  */
 public class GraphPoet {
-    
+
     private final Graph<String> graph = Graph.empty();
-    
+
     // Abstraction function:
-    //   TODO
+    //   AF(graph) = a word affinity graph that words are the labels of the vertices, vertices are
+    //   case-insensitive words and edge weights are in-order adjacency counts.
     // Representation invariant:
-    //   TODO
+    //   Every label of a vertex is unique. Edge weights are in-order adjacency counts, and if there is no pair A and B
+    //   then there is not an edge from A to B
     // Safety from rep exposure:
-    //   TODO
-    
+    //   The label of the vertex is type String, and it is immutable. Vertices with the same label will be added
+    //   only once.
+
     /**
      * Create a new poet with the graph from corpus (as described above).
-     * 
+     *
      * @param corpus text file from which to derive the poet's affinity graph
      * @throws IOException if the corpus file cannot be found or read
      */
     public GraphPoet(File corpus) throws IOException {
-        throw new RuntimeException("not implemented");
+        AtomicReference<String> corpusStr = new AtomicReference<>("");
+        try (Stream<String> stream = Files.lines(Paths.get(corpus.getAbsolutePath()), StandardCharsets.UTF_8)) {
+            List<String> tempStrList = new ArrayList<>();
+            stream.forEach(tempStrList::add);
+            assert tempStrList.size() >= 1;
+            tempStrList.forEach(str -> {
+                corpusStr.set(corpusStr + " " + str.toLowerCase());
+            });
+        } catch (IOException | AssertionError e) {
+            if (e instanceof IOException)
+                System.out.println("Read file error! Make sure you are running the program at the right working directory.");
+            else System.out.println("Read file error! Make sure your file contain has at least one line.");
+            return;
+        }
+        corpusStr.set(corpusStr.get().trim().replaceAll(" +", " "));
+        List<String> corpusWordsStr = List.of(corpusStr.get().split(" "));
+//        corpusWordsStr.forEach(System.out::println);
+        if (corpusWordsStr.size() == 0) return;
+        if (corpusWordsStr.size() == 1) {
+            graph.add(corpusWordsStr.get(0));
+            return;
+        }
+        for (int i = 1; i < corpusWordsStr.size(); i++) {
+            Integer weight = graph.targets(corpusWordsStr.get(i)).get(corpusWordsStr.get(i - 1));
+            graph.set(corpusWordsStr.get(i - 1), corpusWordsStr.get(i), weight == null ? 1 : weight + 1);
+//            System.out.printf("Add edge from %s to %s\n", corpusWordsStr.get(i - 1), corpusWordsStr.get(i));
+        }
+
     }
-    
+
     // TODO checkRep
-    
+    public void checkRep() {
+
+    }
+
     /**
      * Generate a poem.
-     * 
+     *
      * @param input string from which to create the poem
      * @return poem (as described above)
      */
     public String poem(String input) {
-        throw new RuntimeException("not implemented");
+//        throw new RuntimeException("not implemented");
+        List<String> srcStrings = List.of(input.trim().replaceAll(" +", " ").split(" "));
+        List<String> dstStrings = new ArrayList<>();
+        if (srcStrings.size() <= 1) return input;
+        dstStrings.add(srcStrings.get(0));
+        for (int i = 1; i < srcStrings.size(); i++) {
+            Map<String, Integer> targets = graph.targets(srcStrings.get(i - 1).toLowerCase());
+            Map<String, Integer> sources = graph.sources(srcStrings.get(i).toLowerCase());
+            AtomicReference<String> bridge = new AtomicReference<>();
+            targets.entrySet().forEach(entry -> {
+                String target = entry.getKey().toLowerCase();
+                if (sources.get(target) != null) bridge.set(target);
+            });
+            if (bridge.get() != null) dstStrings.add(bridge.get());
+            dstStrings.add(srcStrings.get(i));
+        }
+        return String.join(" ", dstStrings);
     }
-    
+
     // TODO toString()
-    
+
+
+    @Override
+    public String toString() {
+        return "GraphPoet{" +
+                "graph=" + graph +
+                '}';
+    }
 }
