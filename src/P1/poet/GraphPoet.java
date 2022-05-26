@@ -106,12 +106,17 @@ public class GraphPoet {
             graph.set(corpusWordsStr.get(i - 1), corpusWordsStr.get(i), weight == null ? 1 : weight + 1);
 //            System.out.printf("Add edge from %s to %s\n", corpusWordsStr.get(i - 1), corpusWordsStr.get(i));
         }
+        checkRep();
 
     }
 
     // TODO checkRep
     public void checkRep() {
-
+        graph.vertices().forEach(vertex -> {
+            graph.targets(vertex).forEach((key, value) -> {
+                assert value > 0;
+            });
+        });
     }
 
     /**

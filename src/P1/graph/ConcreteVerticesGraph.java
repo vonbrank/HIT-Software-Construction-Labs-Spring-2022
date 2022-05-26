@@ -30,6 +30,7 @@ public class ConcreteVerticesGraph<L> implements Graph<L> {
         Set<L> verticesLabels = new HashSet<>();
         for (Vertex<L> vertex : vertices) {
             assert !verticesLabels.contains(vertex.getLabel());
+            vertex.checkRep();
             verticesLabels.add(vertex.getLabel());
         }
     }
@@ -41,6 +42,7 @@ public class ConcreteVerticesGraph<L> implements Graph<L> {
                 return false;
         }
         vertices.add(new Vertex<L>(vertex));
+        checkRep();
         return true;
     }
 
@@ -62,6 +64,7 @@ public class ConcreteVerticesGraph<L> implements Graph<L> {
             if (weight == 0) sourceVertex.removeEdge(target);
             else sourceVertex.addEdge(target, weight);
         }
+        checkRep();
         return previousWeight;
     }
 
@@ -73,6 +76,7 @@ public class ConcreteVerticesGraph<L> implements Graph<L> {
         for (Vertex<L> currentVertex : vertices) {
             currentVertex.removeEdge(vertex);
         }
+        checkRep();
         return true;
     }
 
@@ -80,6 +84,7 @@ public class ConcreteVerticesGraph<L> implements Graph<L> {
     public Set<L> vertices() {
         Set<L> res = new HashSet<>();
         vertices.forEach(vertex -> res.add(vertex.getLabel()));
+        checkRep();
         return res;
     }
 
@@ -126,11 +131,13 @@ class Vertex<L> {
     private final Map<L, Integer> edges;
 
     // Abstraction function:
-    //   TODO
+    //   AF(label, edges) = a vertex with the label, and is the source of some edges such that for each edge whose
+    //   weight is w and target is v, satisfying edges.put(v) equals w.
     // Representation invariant:
-    //   TODO
+    //   The weight of each edge is greater than zero
     // Safety from rep exposure:
-    //   TODO
+    //   L is immutable.
+    //   Each method that returns a Map, we construct a new one making it satisfying the post condition, then return.
 
     // TODO constructor
     Vertex(L label) {
@@ -139,6 +146,11 @@ class Vertex<L> {
     }
 
     // TODO checkRep
+    public void checkRep() {
+        edges.forEach((key, value) -> {
+            assert value > 0;
+        });
+    }
 
     // TODO methods
     public L getLabel() {
@@ -171,4 +183,12 @@ class Vertex<L> {
 
     // TODO toString()
 
+
+    @Override
+    public String toString() {
+        return "Vertex{" +
+                "label=" + label +
+                ", edges=" + edges +
+                '}';
+    }
 }

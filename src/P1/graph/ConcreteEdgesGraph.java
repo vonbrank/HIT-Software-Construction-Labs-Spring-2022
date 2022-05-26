@@ -32,11 +32,15 @@ public class ConcreteEdgesGraph<L> implements Graph<L> {
     // TODO constructor
 
     // TODO checkRep
+    public void checkRep() {
+        edges.forEach(Edge::checkRep);
+    }
 
     @Override
     public boolean add(L vertex) {
         if (vertices.contains(vertex)) return false;
         else vertices.add(vertex);
+        checkRep();
         return true;
     }
 
@@ -66,13 +70,16 @@ public class ConcreteEdgesGraph<L> implements Graph<L> {
         }
 
         edges.add(new Edge<L>(source, target, weight));
+        checkRep();
         return 0;
     }
 
     @Override
     public boolean remove(L vertex) {
         if (!vertices.contains(vertex)) return false;
+        vertices.removeIf(currentVertex -> currentVertex.equals(vertex));
         edges.removeIf(edge -> (edge.getSource().equals(vertex) || edge.getTarget().equals(vertex)));
+        checkRep();
         return true;
     }
 
@@ -151,7 +158,7 @@ class Edge<L> {
     /**
      * check the representation exposure
      */
-    private void checkRep() {
+    public void checkRep() {
         assert weight > 0;
     }
 
