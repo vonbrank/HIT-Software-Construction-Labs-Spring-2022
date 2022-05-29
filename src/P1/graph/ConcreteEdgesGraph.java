@@ -107,10 +107,16 @@ public class ConcreteEdgesGraph<L> implements Graph<L> {
 
     @Override
     public String toString() {
-        return "ConcreteEdgesGraph{" +
-                "vertices=" + vertices +
-                ", edges=" + edges +
-                '}';
+        return String.format("Graph=(V={%s},E={%s})", vertices.stream()
+                        .sorted((a, b) -> a.toString().compareTo(b.toString()))
+                        .map(Object::toString).collect(Collectors.joining(",")),
+                edges.stream()
+                        .sorted((a, b) -> {
+                            if (!a.getSource().equals(b.getSource()))
+                                return a.getSource().toString().compareTo(b.getSource().toString());
+                            return a.getTarget().toString().compareTo(b.getTarget().toString());
+                        })
+                        .map(Objects::toString).collect(Collectors.joining(",")));
     }
 }
 
@@ -204,10 +210,6 @@ class Edge<L> {
     // TODO toString()
     @Override
     public String toString() {
-        return "Edge{" +
-                "source='" + source + '\'' +
-                ", target='" + target + '\'' +
-                ", weight=" + weight +
-                '}';
+        return String.format("(%s,%s,%d)", source.toString(), target.toString(), weight);
     }
 }

@@ -114,6 +114,16 @@ public class ConcreteVerticesGraph<L> implements Graph<L> {
 
     // TODO toString()
 
+
+    @Override
+    public String toString() {
+        return String.format("Graph=(V={%s},E={%s})", vertices.stream()
+                        .sorted(Comparator.comparing(a -> a.getLabel().toString()))
+                        .map(vertex -> vertex.getLabel().toString())
+                        .collect(Collectors.joining(",")),
+                vertices.stream().filter(vertex -> vertex.outDegree() != 0).sorted(Comparator.comparing(a -> a.getLabel().toString()))
+                        .map(Vertex::toString).collect(Collectors.joining(",")));
+    }
 }
 
 /**
@@ -159,6 +169,7 @@ class Vertex<L> {
 
     public void addEdge(L target, int weight) {
         edges.put(target, weight);
+        checkRep();
     }
 
     public int getWeight(L target) {
@@ -174,6 +185,7 @@ class Vertex<L> {
             previousWeight = edges.get(target);
             edges.remove(target);
         }
+        checkRep();
         return previousWeight;
     }
 
@@ -181,14 +193,16 @@ class Vertex<L> {
         return new HashMap<>(edges);
     }
 
+    public int outDegree() {
+        return edges.size();
+    }
+
     // TODO toString()
-
-
     @Override
     public String toString() {
-        return "Vertex{" +
-                "label=" + label +
-                ", edges=" + edges +
-                '}';
+        return String.format("(%s,{%s})", label.toString(), edges.keySet().stream()
+                .sorted(Comparator.comparing(Object::toString))
+                .map(key -> String.format("(%s,%d)", key, edges.get(key)))
+                .collect(Collectors.joining(",")));
     }
 }
