@@ -420,21 +420,134 @@ To boldly go where no one has gone before!
 
 将内容作为构造图的文本，输入 `Seek to explore new and exciting synergies!`，输出自然仍然是 `Seek to explore strange new life and exciting synergies!` 。
 
-#### 3.1.6 使用Eclemma检查测试的代码覆盖度
+#### 3.1.6 使用IDEA检查测试的代码覆盖度
 
+![](https://s1.ax1x.com/2022/05/29/XQ86Cq.png)
 
+其中 `FriendshipGraph` 覆盖率较低是因为没有对 `main` 函数进行测试。
 
 ### 3.2 Re-implement the Social Network in Lab1
 
+本题要求利用写好的 `Graph` ADT重写 `Lab1` 中的社交网络。
+
 #### 3.2.1 FriendshipGraph类
+
+`AF, RI` 如图所示：
+
+```java
+public class FriendshipGraph {
+    private final Graph<Person> graph;
+    // Abstraction function:
+    //   AF(graph) = a friendship graph such that evey vertex is labeled by a Person, and there is an edge between
+    //   person1 and person2 iff there is a connection from person1 to person2
+    // Representation invariant:
+    //   Each person has a unique name
+    // Safety from rep exposure:
+    //   the field graph is final and no method will mutate it.
+}
+```
+
+求两点间距离使用BFS等内容与 `Lab1` 一致。
 
 #### 3.2.2 Person 类
 
+`AF, RI` 如图所示：
+
+```java
+public class Person {
+    private final String name;
+
+    // Abstraction function:
+    //   AF(name) = a person with the name
+    // Representation invariant:
+    //   Each person has a unique name
+    // Safety from rep exposure:
+    //   String name is immutable.
+}
+```
+
+此处 `Person` 只作为 `Graph` 节点的 `label` 使用，是一个纯数据类，只需要实现 `equals` 和 `hashCode` 即可。
+
 #### 3.2.3 客户端 main()
+
+与 `Lab1` 大体一致，适配了新的 API
+
+```java
+public static void main(String[] args) {
+    FriendshipGraph graph = new FriendshipGraph();
+    Scanner scanner = new Scanner(System.in);
+    System.out.println("Welcome to this interactive prompt, type in 'help' to see what you can do.");
+    while (true) {
+        System.out.print("> ");
+        String command = scanner.nextLine();
+        List<String> commandArgs = List.of(command.split(" "));
+        if (commandArgs.size() < 1) continue;
+        if (commandArgs.get(0).equals("addVertex")) {
+            if (commandArgs.size() < 2) continue;
+            Person person = new Person(commandArgs.get(1));
+            try {
+                graph.addVertex(person);
+            } catch (RuntimeException e) {
+                System.out.println(e.getMessage());
+                break;
+            }
+        } else if (commandArgs.get(0).equals("addEdge")) {
+            if (commandArgs.size() < 3) continue;
+            Person u = new Person(commandArgs.get(1));
+            Person v = new Person(commandArgs.get(2));
+            graph.addEdge(u, v);
+        } else if (commandArgs.get(0).equals("getDistance")) {
+            if (commandArgs.size() < 3) continue;
+            Person u = new Person(commandArgs.get(1));
+            Person v = new Person(commandArgs.get(2));
+            System.out.println(graph.getDistance(u, v));
+        } else if (commandArgs.get(0).equals("help")) {
+            System.out.println("Command List:");
+            System.out.println("\taddVertex <Person Name> -- add a vertex with a name");
+            System.out.println("\taddEdge <Person 1 Name> <Person 2 Name> -- add an edge from u to v");
+            System.out.println(
+                "\tgetDistance <Person 1 Name> <Person 2 Name> -- get the distance from u to v");
+            System.out.println("\tquit -- leave the interactive prompt");
+
+        } else if (commandArgs.get(0).equals("quit")) break;
+        else System.out.println("Command not found, type in 'help' to see what commands are available.");
+    }
+    System.out.println("Interactive prompt terminated.");
+}
+```
 
 #### 3.2.4 测试用例
 
+测试类编写如下，与 `Lab1` 一致，说明可以在不改变接口的情况下使用：
+
+```java
+public class FriendshipGraphTest {
+    @Test
+    public void friendshipGraphFeatureTest() {
+        FriendshipGraph graph = new FriendshipGraph();
+        Person rachel = new Person("Rachel");
+        Person ross = new Person("Ross");
+        Person ben = new Person("Ben");
+        Person kramer = new Person("Kramer");
+        graph.addVertex(rachel);
+        graph.addVertex(ross);
+        graph.addVertex(ben);
+        graph.addVertex(kramer);
+        graph.addEdge(rachel, ross);
+        graph.addEdge(ross, rachel);
+        graph.addEdge(ross, ben);
+        graph.addEdge(ben, ross);
+        assertEquals(1, graph.getDistance(rachel, ross));
+        assertEquals(2, graph.getDistance(rachel, ben));
+        assertEquals(0, graph.getDistance(rachel, rachel));
+        assertEquals(-1, graph.getDistance(rachel, kramer));
+    }
+}
+```
+
 #### 3.2.5 提交至 Git 仓库
+
+将所有修改 `git add` 后 `commit` ，然后 `git push orgin master` 推送至远程仓库。
 
 ## 4 实验进度
 
@@ -447,32 +560,53 @@ To boldly go where no one has gone before!
 | `2022-05-14` | `18:30-21:15` |            完成`Graph`的两个实现             |     完成     |
 | `2022-05-15` | `09:45-10:15` | 将 `Edge` 和 `Vertex` 改为 `immutable class` |     完成     |
 | `2022-05-19` | `10:40-11:20` |            泛型化 `Graph` 的实现             |     完成     |
-| `2022-05-26` | `10:00-11:00` | 补充 `Edge` 和 `Vertex` 的测试和 `checkRep`  |     完成     |
+| `2022-05-26` | `10:00-11:00` |               补充 `checkRep`                |     完成     |
+| `2022-05-2`9 | `18:30-20:00` |   补充 `Edge` 和 `Vertex` 的测试和实验报告   |     完成     |
 
 ## 5 实验过程中遇到的困难与解决途径
 
-| 遇到难点 | 解决途径 |
-|:----:|:----:|
-|      |      |
-|      |      |
-|      |      |
+|                     遇到难点                     |            解决途径            |
+| :----------------------------------------------: | :----------------------------: |
+| 利用集合的 `lambda API` 等转换字符串并拼接不熟练 |     StackOverflow寻找答案      |
+|           不会使用反射测试不可见泛型类           | StackOverflow寻找答案/询问朋友 |
 
 ## 6 实验过程中收获的经验、教训、感想
 
-6.1 实验过程中收获的经验和教训（必答）
+### 6.1 实验过程中收获的经验和教训（必答）
 
-6.2 针对以下方面的感受（必答）
+本次实验体验了编写 ADT 的过程。可以了解到生产环境中编写组件需要先写好 `Rep, AF, RI` 等，约定好接口后，编写测试样例，然后根据约定的接口编写代码。测试时还需要注意代码覆盖度问题，尽可能在开发阶段发现 bug。 
+
+### 6.2 针对以下方面的感受（必答）
 
 + 面向ADT的编程和直接面向应用场景编程，你体会到二者有何差异？
 
+  面向ADT的编程并不关心实际场景如何使用，而只关心因为实际场景所引发的可能需求，进而需要满足一类操作的数据类型，从而构造然后实现它。ADT的一大特点是可复用性，通常使用泛型来解决，而面向场景编程可能只着眼于眼前的需求。
+
 + 使用泛型和不使用泛型的编程，对你来说有何差异？
+
+  使用泛型编程提升了代码复用度，使开发者通常不用为每一个类型单独编写数据类型，减轻了工作量；同时，使用泛型编程相比不使用难度也稍高，但这是值得的。
 
 + 在给出ADT的规约后就开始编写测试用例，优势是什么？你是否能够适应这种测试方式？
 
+  优势是通过构造样例，可以很方便地测试代码是否正确，有助于在开发阶段尽早发现bug。可以适应。
+
 + P1设计的ADT在多个应用场景下使用，这种复用带来什么好处？
+
+  使得开发者只需要编写一份ADT的代码，就可以一劳永逸四处使用，减轻了工作量。
 
 + 为ADT撰写specification, invariants, RI, AF，时刻注意ADT是否有rep exposure，这些工作的意义是什么？你是否愿意在以后编程中坚持这么做？
 
-+ 关于本实验的工作量、难度、deadline。
+  这些工作有助于规范编程习惯，让自己或他人容易地维护既有代码，同时减少程序的 bug；愿意坚持这样做。
+
++ 关于本实验的工作量、难度、deadline：
+
+  工作量适中，难度适中，deadline在与其他课程考试重合时有点紧。
 
 + 《软件构造》课程进展到目前，你对该课程有何收获和建议？
+  + 收获：
+    + 了解了软件开发的一些基本规则，体验生产环境中编写组件的一些流程，如确定规约，做单元测试等；
+    + 对Java语言的使用更加熟练。
+  + 建议：
+    + 宁愿多加一题也不想写报告（（
+    + 可以增加一个实验，要求几个人一组，在同一个 `git` 仓库下共同完成，体验多人开发流程
+    + 继续提高实验占总成绩的比例，降低期末笔试占总成绩的比例

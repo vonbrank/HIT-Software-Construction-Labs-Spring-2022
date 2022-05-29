@@ -5,6 +5,13 @@ import java.util.Objects;
 public class Person {
     private final String name;
 
+    // Abstraction function:
+    //   AF(name) = a person with the name
+    // Representation invariant:
+    //   Each person has a unique name
+    // Safety from rep exposure:
+    //   String name is immutable.
+
     /**
      * initialize the instance with a name
      * @param name the name of the people
@@ -13,14 +20,6 @@ public class Person {
         this.name = name;
     }
 
-
-    /**
-     *
-     * @return get the name of the person
-     */
-    public String getName() {
-        return name;
-    }
 
     @Override
     public boolean equals(Object o) {

@@ -10,6 +10,7 @@ public class FriendshipGraph {
     // Representation invariant:
     //   Each person has a unique name
     // Safety from rep exposure:
+    //   the field graph is final and no method will mutate it.
 
 
     FriendshipGraph() {
