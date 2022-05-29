@@ -424,7 +424,11 @@ To boldly go where no one has gone before!
 
 ![](https://s1.ax1x.com/2022/05/29/XQ86Cq.png)
 
-其中 `FriendshipGraph` 覆盖率较低是因为没有对 `main` 函数进行测试。
+![](https://s1.ax1x.com/2022/05/29/XQY0bD.png)
+
+![](https://s1.ax1x.com/2022/05/29/XQY2xP.png)
+
+其中 `FriendshipGraph` 覆盖率较低是因为 `Main` 难以测试。
 
 ### 3.2 Re-implement the Social Network in Lab1
 
