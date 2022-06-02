@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Encoding">
+    <file url="file://$PROJECT_DIR$/src/app/BusinessVotingApp.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/app/ElectionApp.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/auxiliary/Dish.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/auxiliary/Person.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/auxiliary/Proposal.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/auxiliary/Voter.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/poll/GeneralPollImpl.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/poll/Poll.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/vote/RealNameVote.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/vote/Vote.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/vote/VoteItem.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/vote/VoteType.java" charset="UTF-8" />
+  </component>
+</project>
