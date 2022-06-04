@@ -10,8 +10,10 @@ import java.util.Set;
 
 class VoteTest {
 
-	// test strategy
-	// TODO
+	/*
+	 * 提供一组对于 Dish 的表决：[("A", "喜欢"), ("B", "不喜欢")]
+	 * 覆盖 vote 中所有方法
+	 */
 
 	@Test
 	void test() {

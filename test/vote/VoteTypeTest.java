@@ -9,8 +9,12 @@ import java.util.Map;
 
 class VoteTypeTest {
 
-	// test strategy
-	// TODO
+	/* Testing strategy
+	 *
+	 * 提供一组 VoteType 选项及其分数：(["喜欢", 2], ["不喜欢", 0], ["无所谓", 1])
+	 * 测试 VoteType 的所有方法
+	 *
+	 */
 
 	@Test
 	void test() {

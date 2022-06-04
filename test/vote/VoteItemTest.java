@@ -7,7 +7,10 @@ import org.junit.jupiter.api.Test;
 
 class VoteItemTest {
 
-    // test strategy
+    /* Testing strategy
+     * 给出一个对于 Dish 的具体表决：(("A", 10), "喜欢")
+     * 测试 voteItem 中的所有方法
+     */
 
     @Test
     void test() {
