@@ -79,7 +79,8 @@ public class VoteType {
 
 	@Override
 	public boolean equals(Object obj) {
-		if(!(obj instanceof VoteType otherVoteType)) return false;
+		if(!(obj instanceof VoteType )) return false;
+		VoteType otherVoteType = (VoteType) obj;
 		return this.options.equals(otherVoteType.options);
 	}
 }
