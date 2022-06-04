@@ -14,6 +14,9 @@ class VoteItemTest {
 
         VoteItem<Dish> voteItem = new VoteItem<>(new Dish("A", 10), "喜欢");
 
+        assertEquals(new Dish("A", 10), voteItem.getCandidate());
+        assertNotEquals(new Dish("A", 11), voteItem.getCandidate());
+
         assertEquals("喜欢", voteItem.getVoteValue());
         assertNotEquals("讨厌", voteItem.getVoteValue());
 
