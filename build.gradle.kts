@@ -27,6 +27,11 @@ sourceSets {
 
 tasks["build"].dependsOn("main")
 
+java {
+    sourceCompatibility = org.gradle.api.JavaVersion.VERSION_1_10
+    targetCompatibility = org.gradle.api.JavaVersion.VERSION_1_10
+}
+
 repositories {
     mavenCentral()
 }
