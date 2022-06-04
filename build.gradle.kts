@@ -21,15 +21,18 @@ sourceSets {
         compileClasspath += configurations.testCompileClasspath
         runtimeClasspath += configurations.testRuntimeClasspath
     }
+//    sourceSets.forEach { println("${it.name} 的文件 是 ${it.java.srcDirs}") }
 
 }
+
+tasks["build"].dependsOn("main")
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.6.0")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.2")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
 }
 
