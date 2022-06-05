@@ -85,8 +85,6 @@ class PollTest {
 
         List<String> selectedDishes = List.of("A", "B", "C", "D");
 
-        assert poll != null;
-
         poll.setInfo("Dishes Vote", Calendar.getInstance(), voteType, 4);
 
         poll.addCandidates(dishes);
