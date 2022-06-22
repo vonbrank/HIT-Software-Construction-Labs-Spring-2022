@@ -13,6 +13,7 @@ public class ElectionCheckVoteValidityStrategy extends DefaultCheckVoteValidityS
 
     /**
      * 构造选举投票专用的投票有效性检查策略
+     *
      * @param quantity 支持票数量上限
      */
     ElectionCheckVoteValidityStrategy(int quantity) {
@@ -20,8 +21,8 @@ public class ElectionCheckVoteValidityStrategy extends DefaultCheckVoteValidityS
     }
 
     @Override
-    public <C> boolean checkVoteValidity(List<C> targetCandidates, Vote<C> newVote, Set<Vote<C>> polledVotes, VoteType voteType) {
-        boolean res = super.checkVoteValidity(targetCandidates, newVote, polledVotes, voteType);
+    public <C> boolean checkVoteValidity(List<C> targetCandidates, Vote<C> newVote, VoteType voteType) {
+        boolean res = super.checkVoteValidity(targetCandidates, newVote, voteType);
         AtomicInteger voteQuantity = new AtomicInteger();
         newVote.getVoteItems().forEach(voteItem -> {
             if (voteItem.getVoteValue().equals("支持")) voteQuantity.getAndIncrement();
