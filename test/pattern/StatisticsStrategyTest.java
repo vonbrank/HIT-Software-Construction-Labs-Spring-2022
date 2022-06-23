@@ -17,7 +17,6 @@ import java.util.*;
  * 1. 提案数不是 1
  * 2. 提案数为 1 ，vote 类型为 Vote
  * 3. 提案数为 1 ，vote 类型为 RealNameVote，其 voter 类型为 Voter
- * 4. 提案数为 1 ，vote 类型为 RealNameVote，其 voter 类型为 WeightVoter
  *
  * 点菜计票的等价类划分：
  * 1. vote 类型为 Vote
@@ -46,30 +45,38 @@ public class StatisticsStrategyTest {
         proposals.add(new Proposal("提案1", Calendar.getInstance()));
         proposals.add(new Proposal("提案2", Calendar.getInstance()));
 
+        Map<Voter, Double> voters = Map.of(
+                new Voter("A"), 5.0,
+                new Voter("B"), 51.0,
+                new Voter("C"), 10.0,
+                new Voter("D"), 24.0,
+                new Voter("E"), 20.0
+        );
+
         Set<Vote<Proposal>> votes = new HashSet<>();
         votes.add(new RealNameVote<>(Set.of(
                 new VoteItem<>(proposals.get(0), "反对"),
                 new VoteItem<>(proposals.get(1), "反对")),
-                new WeightVoter("A", 5)));
+                new Voter("A")));
         votes.add(new RealNameVote<>(Set.of(
                 new VoteItem<>(proposals.get(0), "支持"),
                 new VoteItem<>(proposals.get(1), "支持")),
-                new WeightVoter("B", 51)));
+                new Voter("B")));
         votes.add(new RealNameVote<>(Set.of(
                 new VoteItem<>(proposals.get(0), "支持"),
                 new VoteItem<>(proposals.get(1), "支持")),
-                new WeightVoter("C", 10)));
+                new Voter("C")));
         votes.add(new RealNameVote<>(Set.of(
                 new VoteItem<>(proposals.get(0), "反对"),
                 new VoteItem<>(proposals.get(1), "反对")),
-                new WeightVoter("D", 24)));
+                new Voter("D")));
         votes.add(new RealNameVote<>(Set.of(
                 new VoteItem<>(proposals.get(0), "反对"),
                 new VoteItem<>(proposals.get(1), "反对")),
-                new WeightVoter("E", 20)));
+                new Voter("E")));
         List<Proposal> finalProposals = proposals;
         Set<Vote<Proposal>> finalVotes = votes;
-        assertThrows(RuntimeException.class, () -> ss.getVoteStatistics(finalProposals, finalVotes, voteType));
+        assertThrows(RuntimeException.class, () -> ss.getVoteStatistics(voteType, voters, finalProposals, finalVotes));
 
 
         proposals = new ArrayList<>();
@@ -89,7 +96,7 @@ public class StatisticsStrategyTest {
 
         List<Proposal> finalProposals2 = proposals;
         Set<Vote<Proposal>> finalVotes2 = votes;
-        assertThrows(RuntimeException.class, () -> ss.getVoteStatistics(finalProposals2, finalVotes2, voteType));
+        assertThrows(RuntimeException.class, () -> ss.getVoteStatistics(voteType, voters, finalProposals2, finalVotes2));
 
 
         proposals = new ArrayList<>();
@@ -113,30 +120,8 @@ public class StatisticsStrategyTest {
                 new Voter("E")));
         List<Proposal> finalProposals3 = proposals;
         Set<Vote<Proposal>> finalVotes3 = votes;
-        assertThrows(RuntimeException.class, () -> ss.getVoteStatistics(finalProposals3, finalVotes3, voteType));
+        assertEquals(Map.of(proposals.get(0), 61.0), ss.getVoteStatistics(voteType, voters, finalProposals3, finalVotes3));
 
-        proposals = new ArrayList<>();
-        proposals.add(new Proposal("提案1", Calendar.getInstance()));
-
-        votes = new HashSet<>();
-        votes.add(new RealNameVote<>(Set.of(
-                new VoteItem<>(proposals.get(0), "反对")),
-                new WeightVoter("A", 5)));
-        votes.add(new RealNameVote<>(Set.of(
-                new VoteItem<>(proposals.get(0), "支持")),
-                new WeightVoter("B", 51)));
-        votes.add(new RealNameVote<>(Set.of(
-                new VoteItem<>(proposals.get(0), "支持")),
-                new WeightVoter("C", 10)));
-        votes.add(new RealNameVote<>(Set.of(
-                new VoteItem<>(proposals.get(0), "反对")),
-                new WeightVoter("D", 24)));
-        votes.add(new RealNameVote<>(Set.of(
-                new VoteItem<>(proposals.get(0), "反对")),
-                new WeightVoter("E", 20)));
-        List<Proposal> finalProposals4 = proposals;
-        Set<Vote<Proposal>> finalVotes4 = votes;
-        assertEquals(Map.of(proposals.get(0), 61), ss.getVoteStatistics(finalProposals4, finalVotes4, voteType));
     }
 
     /*
@@ -153,6 +138,13 @@ public class StatisticsStrategyTest {
         options.put("无所谓", 1);
         VoteType voteType = new VoteType(options);
 
+        Map<Voter, Double> voters = Map.of(
+                new Voter("爷爷"), 4.0,
+                new Voter("爸爸"), 1.0,
+                new Voter("妈妈"), 2.0,
+                new Voter("儿子"), 2.0
+        );
+
         List<Dish> dishes = new ArrayList<>();
         dishes.add(new Dish("A", 10));
         dishes.add(new Dish("B", 40));
@@ -163,28 +155,28 @@ public class StatisticsStrategyTest {
                 new VoteItem<>(dishes.get(0), "喜欢"),
                 new VoteItem<>(dishes.get(1), "喜欢"),
                 new VoteItem<>(dishes.get(2), "无所谓")
-        ), new WeightVoter("爷爷", 4)));
+        ), new Voter("爷爷")));
         votes.add(new RealNameVote<>(Set.of(
                 new VoteItem<>(dishes.get(0), "无所谓"),
                 new VoteItem<>(dishes.get(1), "喜欢"),
                 new VoteItem<>(dishes.get(2), "喜欢")
-        ), new WeightVoter("爸爸", 1)));
+        ), new Voter("爸爸")));
         votes.add(new RealNameVote<>(Set.of(
                 new VoteItem<>(dishes.get(0), "喜欢"),
                 new VoteItem<>(dishes.get(1), "不喜欢"),
                 new VoteItem<>(dishes.get(2), "不喜欢")
-        ), new WeightVoter("妈妈", 2)));
+        ), new Voter("妈妈")));
         votes.add(new RealNameVote<>(Set.of(
                 new VoteItem<>(dishes.get(0), "喜欢"),
                 new VoteItem<>(dishes.get(1), "无所谓"),
                 new VoteItem<>(dishes.get(2), "喜欢")
-        ), new WeightVoter("儿子", 2)));
+        ), new Voter("儿子")));
 
         assertEquals(Map.of(
-                dishes.get(0), 17,
-                dishes.get(1), 12,
-                dishes.get(2), 10
-        ), ss.getVoteStatistics(dishes, votes, voteType));
+                dishes.get(0), 17.0,
+                dishes.get(1), 12.0,
+                dishes.get(2), 10.0
+        ), ss.getVoteStatistics(voteType, voters, dishes, votes));
 //        assertThrows(RuntimeException.class, () -> ss.getVoteStatistics(dishes, votes, voteType));
     }
 
@@ -230,10 +222,10 @@ public class StatisticsStrategyTest {
         )));
 
         assertEquals(Map.of(
-                people.get(0), -1,
-                people.get(1), -2,
-                people.get(2), 2
-        ), ss.getVoteStatistics(people, votes, voteType));
+                people.get(0), -1.0,
+                people.get(1), -2.0,
+                people.get(2), 2.0
+        ), ss.getVoteStatistics(voteType, null, people, votes));
     }
 
 }
