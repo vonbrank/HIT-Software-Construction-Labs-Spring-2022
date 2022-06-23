@@ -5,7 +5,7 @@ public class Dish {
 	//菜品名字和价格
 	private String name;
 	private double price;
-	
+
 	public Dish(String n, double p) {
 		this.price = p;
 		this.name = n;
@@ -55,5 +55,13 @@ public class Dish {
 		if (Double.doubleToLongBits(price) != Double.doubleToLongBits(other.price))
 			return false;
 		return true;
+	}
+
+	@Override
+	public String toString() {
+		return "Dish{" +
+				"name='" + name + '\'' +
+				", price=" + price +
+				'}';
 	}
 }

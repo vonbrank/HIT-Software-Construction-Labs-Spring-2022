@@ -4,7 +4,7 @@ import java.util.Calendar;
 
 //无需修改本代码
 public class Proposal {
-	
+
 	//提案名称和提案日期
 	private String title;
 	private Calendar date;
@@ -59,5 +59,13 @@ public class Proposal {
 		} else if (!title.equals(other.title))
 			return false;
 		return true;
+	}
+
+	@Override
+	public String toString() {
+		return "Proposal{" +
+				"title='" + title + '\'' +
+				", date=" + date +
+				'}';
 	}
 }
