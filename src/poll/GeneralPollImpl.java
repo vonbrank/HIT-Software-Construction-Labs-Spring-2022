@@ -4,9 +4,10 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import auxiliary.Voter;
+import exception.VoteInvalidException;
+import pattern.CheckVoteValidityStrategy;
 import pattern.SelectionStrategy;
 import pattern.StatisticsStrategy;
-import vote.VoteItem;
 import vote.VoteType;
 import vote.Vote;
 
@@ -24,15 +25,18 @@ public class GeneralPollImpl<C> implements Poll<C> {
     private int quantity;
     // 本次投票拟采用的投票类型（合法选项及各自对应的分数）
     private VoteType voteType;
-    // 所有选票集合
-    protected Set<Vote<C>> votes;
+    // 所有选票及其有效性
+    protected Map<Vote<C>, Boolean> votes;
     // 计票结果，key为候选对象，value为其得分
     protected Map<C, Double> statistics;
     // 遴选结果，key为候选对象，value为其排序位次
     private Map<C, Double> results;
+    // 检查选票合法性策略
+    CheckVoteValidityStrategy checkVoteValidityStrategy;
 
     // Rep Invariants
-    //   所有 field 在不是 null 时，都需要满足 RI （如果在 RI 中有提及）
+    //   quantity >= 1
+    //   投票人 voters 数量 >= 1
     //   候选对象 candidates 数量 >= 1
     //	 选票 votes 数量 >= 1
     // Abstract Function
@@ -45,19 +49,17 @@ public class GeneralPollImpl<C> implements Poll<C> {
     //   由方法参数传入的 mutable 对象将通过防御式拷贝赋值给 rep
     //   ADT 本身是 mutable 的，但是各 mutable 的 rep 不会作为某个方法的返回值。
 
-    private boolean checkRep() {
-        boolean res = true;
-        if (candidates != null && quantity != 0 && !(candidates.size() >= 1)) res = false;
-        if (votes != null && !(votes.size() >= 1)) res = false;
-        if (results != null && !(results.size() >= 1)) res = false;
-        return res;
+    protected boolean checkRep() {
+        return quantity >= 1;
     }
 
     /**
      * 构造函数
      */
     public GeneralPollImpl() {
-
+        this.voters = new HashMap<>();
+        this.candidates = new ArrayList<>();
+        this.votes = new HashMap<>();
     }
 
     @Override
@@ -66,35 +68,44 @@ public class GeneralPollImpl<C> implements Poll<C> {
         this.date = (Calendar) date.clone();
         this.voteType = type;
         this.quantity = quantity;
-        this.voters = new HashMap<>();
-        this.candidates = new ArrayList<>();
-        this.votes = new HashSet<>();
-//        checkRep();
+
     }
 
     @Override
     public void addVoters(Map<Voter, Double> voters) {
         this.voters.putAll(voters);
-//        checkRep();
     }
 
     @Override
     public void addCandidates(List<C> candidates) {
         this.candidates.addAll(candidates);
-//        checkRep();
+    }
+
+    public void setCheckVoteValidityStrategy(CheckVoteValidityStrategy cvvs) {
+        this.checkVoteValidityStrategy = cvvs;
     }
 
     @Override
     public void addVote(Vote<C> vote) {
         // 此处应首先检查该选票的合法性并标记，为此需扩展或修改rep
-        this.votes.add(vote);
+        this.votes.put(vote, checkVoteValidityStrategy.checkAddVoteValidity(
+                new ArrayList<>(candidates), vote, voteType));
+
         assert checkRep();
     }
 
     @Override
     public void statistics(StatisticsStrategy ss) {
         // 此处应首先检查当前所拥有的选票的合法性
-        // TODO
+        try {
+            this.votes = checkVoteValidityStrategy.checkVoteValidity(voters, votes);
+        } catch (VoteInvalidException e) {
+            System.out.println(e.toString());
+            return;
+        }
+
+        this.statistics = ss.getVoteStatistics(voteType, voters, candidates, votes.keySet());
+
     }
 
     @Override

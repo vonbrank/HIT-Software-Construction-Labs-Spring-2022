@@ -15,7 +15,7 @@ public class VoteType {
 	//   每个选项名字都不相同
 	//   至少有一个选项
 	// Abstract Function
-	//   AF(options) = 一类投票选项，对于任意 (k, v) 属于 options ，表示存在名为 k 选项，其权重为 v
+	//   AF(options) = 一类投票选项，对于任意 (k, v) 属于 options ，表示存在名为 k 选项，其分数为 v
 	// Safety from Rep Exposure
 	//   VoteType 本身是 immutable 的，没有 mutator ，保证初始化后不会被修改
 	//   构造时传入的 Map 在赋值给 options 前会拷贝一份
@@ -79,6 +79,7 @@ public class VoteType {
 
 	@Override
 	public boolean equals(Object obj) {
+		if(this == obj) return true;
 		if(!(obj instanceof VoteType )) return false;
 		VoteType otherVoteType = (VoteType) obj;
 		return this.options.equals(otherVoteType.options);

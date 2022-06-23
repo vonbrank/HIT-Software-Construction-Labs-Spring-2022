@@ -4,7 +4,8 @@ import auxiliary.Dish;
 
 public class DinnerOrder extends GeneralPollImpl<Dish> implements Poll<Dish> {
     // Rep Invariants
-    //   所有 field 在不是 null 时，都需要满足 RI （如果在 RI 中有提及）
+    //   1 <= quantity <= candidates 数量
+    //   投票人 voters 数量 >= 1
     //   候选对象 candidates 数量 >= 1
     //	 选票 votes 数量 >= 1
     //   voteType 有 (支持, 1), (反对, -1), (弃权, 0)

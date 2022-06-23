@@ -4,7 +4,8 @@ import auxiliary.Proposal;
 
 public class BusinessVoting extends GeneralPollImpl<Proposal> implements Poll<Proposal> {
     // Rep Invariants
-    //   所有 field 在不是 null 时，都需要满足 RI （如果在 RI 中有提及）
+    //   quantity = 1
+    //   投票人 voters 数量 >= 1
     //   候选对象 candidates 数量 = 1
     //	 选票 votes 数量 >= 1
     //   候选结果数量 results = 0, 1
@@ -12,7 +13,7 @@ public class BusinessVoting extends GeneralPollImpl<Proposal> implements Poll<Pr
     // Abstract Function
     //   AF(rep) = 一次投票，名称为 name , 日期为 date , 候选人集合为 candidates ,
     //   投票人及其权重集合为 votes ,
-    //   拟选出选票最大数量为 quantity = 1 ,
+    //   拟选出选票最大数量为 quantity,
     //   合法选项及其分数、所有选票集合、机票结果和遴选结果分别为
     //   voteType, votes, statistics, results
     // Safety from Rep Exposure

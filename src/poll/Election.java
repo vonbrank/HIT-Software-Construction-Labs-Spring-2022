@@ -5,7 +5,8 @@ import auxiliary.Person;
 public class Election extends GeneralPollImpl<Person> implements Poll<Person> {
 
     // Rep Invariants
-    //   所有 field 在不是 null 时，都需要满足 RI （如果在 RI 中有提及）
+    //   投票人数量 <= quantity <= 投票人数量 + 5 <= 候选对象
+    //   投票人 voters 数量 >= 1
     //   候选对象 candidates 数量 >= 1
     //	 选票 votes 数量 >= 1
     //   voteType 有 (喜欢, 2), (不喜欢, 0), (无所谓, 1)

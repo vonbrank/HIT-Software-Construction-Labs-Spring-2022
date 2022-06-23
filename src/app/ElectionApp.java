@@ -32,7 +32,7 @@ public class ElectionApp {
 		types.put("Support", 1);
 		types.put("Oppose", -1);
 		types.put("Waive", 0);
-		VoteType vt = new VoteType(/* TODO */);
+//		VoteType vt = new VoteType(/* TODO */);
 
 		// 创建候选对象：候选人
 		Person p1 = new Person("ABC", 19);
@@ -48,13 +48,13 @@ public class ElectionApp {
 		VoteItem<Person> vi23 = new VoteItem<>(p3, "Waive");
 
 		// 创建2个投票人vr1、vr2的选票
-		Vote<Person> rv1 = new Vote<Person>(/* TODO */);
-		Vote<Person> rv2 = new Vote<Person>(/* TODO */);
+		Vote<Person> rv1 = new Vote<Person>(/* TODO */new HashSet<>());
+		Vote<Person> rv2 = new Vote<Person>(/* TODO */new HashSet<>());
 
 		// 创建投票活动
 		Poll<Person> poll = Poll.create();
 		// 设定投票基本信息：名称、日期、投票类型、选出的数量
-		poll.setInfo(/* TODO */);
+//		poll.setInfo(/* TODO */);
 		// 增加投票人及其权重
 		poll.addVoters(weightedVoters);
 		// 增加三个投票人的选票
@@ -62,9 +62,9 @@ public class ElectionApp {
 		poll.addVote(rv2);
 
 		// 按规则计票
-		poll.statistics(/* TODO */);
+//		poll.statistics(/* TODO */);
 		// 按规则遴选
-		poll.selection(/* TODO */);
+//		poll.selection(/* TODO */);
 		// 输出遴选结果
 		System.out.println(poll.result());
 	}
