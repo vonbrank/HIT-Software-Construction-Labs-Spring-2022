@@ -81,10 +81,6 @@ public class GeneralPollImpl<C> implements Poll<C> {
         this.candidates.addAll(candidates);
     }
 
-    public void setCheckVoteValidityStrategy(CheckVoteValidityStrategy cvvs) {
-        this.checkVoteValidityStrategy = cvvs;
-    }
-
     @Override
     public void addVote(Vote<C> vote) {
         // 此处应首先检查该选票的合法性并标记，为此需扩展或修改rep
@@ -92,6 +88,11 @@ public class GeneralPollImpl<C> implements Poll<C> {
                 new ArrayList<>(candidates), vote, voteType));
 
         assert checkRep();
+    }
+
+    @Override
+    public void setCheckVoteValidityStrategy(CheckVoteValidityStrategy checkVoteValidityStrategy) {
+        this.checkVoteValidityStrategy = checkVoteValidityStrategy;
     }
 
     @Override
@@ -110,12 +111,12 @@ public class GeneralPollImpl<C> implements Poll<C> {
 
     @Override
     public void selection(SelectionStrategy ss) {
-        // TODO
+        this.results = ss.getSelectionResult(statistics);
     }
 
     @Override
     public String result() {
-        return String.format("name: %s, candidates: (%s)",
-                this.name, candidates.stream().map(Object::toString).collect(Collectors.joining(", ")));
+        return String.format("name: %s, candidates: (%s), results: %s",
+                this.name, candidates.stream().map(Object::toString).collect(Collectors.joining(", ")), results.toString());
     }
 }

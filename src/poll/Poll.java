@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import auxiliary.Voter;
+import pattern.CheckVoteValidityStrategy;
 import pattern.SelectionStrategy;
 import pattern.StatisticsStrategy;
 import vote.Vote;
@@ -51,6 +52,12 @@ public interface Poll<C> {
      * @param vote 一个投票人对全体候选对象的投票记录集合
      */
     public void addVote(Vote<C> vote);
+
+    /**
+     * 设置投票有效性检查规则
+     * @param checkVoteValidityStrategy 有效性检查规则
+     */
+    void setCheckVoteValidityStrategy(CheckVoteValidityStrategy checkVoteValidityStrategy);
 
     /**
      * 按规则计票

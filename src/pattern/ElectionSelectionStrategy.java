@@ -10,7 +10,7 @@ public class ElectionSelectionStrategy implements SelectionStrategy {
     // 拟选出候选对象
     int quantity;
 
-    ElectionSelectionStrategy(int quantity) {
+    public ElectionSelectionStrategy(int quantity) {
         this.quantity = quantity;
     }
 

@@ -10,7 +10,7 @@ public class DinnerOrderSelectionStrategy implements SelectionStrategy {
     // 拟选出的菜品数量
     int quantity;
 
-    DinnerOrderSelectionStrategy(int quantity) {
+    public DinnerOrderSelectionStrategy(int quantity) {
         this.quantity = quantity;
     }
 
