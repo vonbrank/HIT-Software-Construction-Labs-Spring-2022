@@ -4,7 +4,6 @@ import vote.Vote;
 import vote.VoteType;
 
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class ElectionCheckVoteValidityStrategy extends DefaultCheckVoteValidityStrategy {
@@ -21,8 +20,8 @@ public class ElectionCheckVoteValidityStrategy extends DefaultCheckVoteValidityS
     }
 
     @Override
-    public <C> boolean checkVoteValidity(List<C> targetCandidates, Vote<C> newVote, VoteType voteType) {
-        boolean res = super.checkVoteValidity(targetCandidates, newVote, voteType);
+    public <C> boolean checkAddVoteValidity(List<C> targetCandidates, Vote<C> newVote, VoteType voteType) {
+        boolean res = super.checkAddVoteValidity(targetCandidates, newVote, voteType);
         AtomicInteger voteQuantity = new AtomicInteger();
         newVote.getVoteItems().forEach(voteItem -> {
             if (voteItem.getVoteValue().equals("支持")) voteQuantity.getAndIncrement();
