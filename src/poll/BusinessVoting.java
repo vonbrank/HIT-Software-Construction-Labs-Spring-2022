@@ -20,5 +20,12 @@ public class BusinessVoting extends GeneralPollImpl<Proposal> implements Poll<Pr
     //   由方法参数传入的 mutable 对象将通过防御式拷贝赋值给 rep
     //   ADT 本身是 mutable 的，但是各 mutable 的 rep 不会作为某个方法的返回值。
 
+    @Override
+    boolean checkRep() {
+        boolean res = (quantity == 1 && candidates.size() == 1);
+        boolean tmp = super.checkRep();
+        if (!tmp) res = false;
+        return res;
+    }
 
 }

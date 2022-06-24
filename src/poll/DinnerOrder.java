@@ -1,6 +1,10 @@
 package poll;
 
 import auxiliary.Dish;
+import pattern.*;
+import vote.VoteType;
+
+import java.util.Calendar;
 
 public class DinnerOrder extends GeneralPollImpl<Dish> implements Poll<Dish> {
     // Rep Invariants
@@ -18,4 +22,25 @@ public class DinnerOrder extends GeneralPollImpl<Dish> implements Poll<Dish> {
     // Safety from Rep Exposure
     //   由方法参数传入的 mutable 对象将通过防御式拷贝赋值给 rep
     //   ADT 本身是 mutable 的，但是各 mutable 的 rep 不会作为某个方法的返回值。
+    @Override
+    boolean checkRep() {
+        boolean res = (1 <= quantity && quantity <= candidates.size());
+        boolean tmp = super.checkRep();
+        if (!tmp) res = false;
+        return res;
+    }
+
+    @Override
+    public void setInfo(String name, Calendar date, VoteType type, int quantity) {
+        super.setInfo(name, date, type, quantity);
+        this.checkVoteValidityStrategy = new DefaultCheckVoteValidityStrategy();
+    }
+
+    public void statistics() {
+        statistics(new DinnerOrderStatisticStrategy());
+    }
+
+    public void selection() {
+        selection(new DinnerOrderSelectionStrategy(quantity));
+    }
 }

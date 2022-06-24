@@ -59,9 +59,6 @@ public class Dish {
 
 	@Override
 	public String toString() {
-		return "Dish{" +
-				"name='" + name + '\'' +
-				", price=" + price +
-				'}';
+		return name;
 	}
 }

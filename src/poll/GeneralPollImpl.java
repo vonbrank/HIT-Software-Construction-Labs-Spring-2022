@@ -11,6 +11,8 @@ import pattern.StatisticsStrategy;
 import vote.VoteType;
 import vote.Vote;
 
+import javax.swing.text.html.parser.Entity;
+
 public class GeneralPollImpl<C> implements Poll<C> {
 
     // 投票活动的名称
@@ -18,13 +20,13 @@ public class GeneralPollImpl<C> implements Poll<C> {
     // 投票活动发起的时间
     private Calendar date;
     // 候选对象集合
-    private List<C> candidates;
+    protected List<C> candidates;
     // 投票人集合，key为投票人，value为其在本次投票中所占权重
-    private Map<Voter, Double> voters;
+    protected Map<Voter, Double> voters;
     // 拟选出的候选对象最大数量
-    private int quantity;
+    protected int quantity;
     // 本次投票拟采用的投票类型（合法选项及各自对应的分数）
-    private VoteType voteType;
+    protected VoteType voteType;
     // 所有选票及其有效性
     protected Map<Vote<C>, Boolean> votes;
     // 计票结果，key为候选对象，value为其得分
@@ -49,8 +51,8 @@ public class GeneralPollImpl<C> implements Poll<C> {
     //   由方法参数传入的 mutable 对象将通过防御式拷贝赋值给 rep
     //   ADT 本身是 mutable 的，但是各 mutable 的 rep 不会作为某个方法的返回值。
 
-    protected boolean checkRep() {
-        return quantity >= 1;
+    boolean checkRep() {
+        return (quantity >= 1 && voters.size() >= 1 && candidates.size() >= 1 && votes.size() >= 1);
     }
 
     /**
@@ -98,12 +100,19 @@ public class GeneralPollImpl<C> implements Poll<C> {
     @Override
     public void statistics(StatisticsStrategy ss) {
         // 此处应首先检查当前所拥有的选票的合法性
+        Map<Vote<C>, Boolean> tmp;
+
         try {
-            this.votes = checkVoteValidityStrategy.checkVoteValidity(voters, votes);
+            tmp = checkVoteValidityStrategy.checkVoteValidity(voters, votes);
         } catch (VoteInvalidException e) {
             System.out.println(e.toString());
             return;
         }
+
+        votes.clear();
+        tmp.forEach((k, v) -> {
+            if (v) votes.put(k, true);
+        });
 
         this.statistics = ss.getVoteStatistics(voteType, voters, candidates, votes.keySet());
 
@@ -116,7 +125,16 @@ public class GeneralPollImpl<C> implements Poll<C> {
 
     @Override
     public String result() {
-        return String.format("name: %s, candidates: (%s), results: %s",
-                this.name, candidates.stream().map(Object::toString).collect(Collectors.joining(", ")), results.toString());
+        List<Map.Entry<C, Double>> list = new ArrayList<>(results.entrySet());
+        list.sort((o1, o2) -> (int) Math.round(o1.getValue() - o2.getValue()));
+        return list.stream()
+                .map(entry -> entry.getKey() + ", " + (entry.getValue()).intValue())
+                .collect(Collectors.joining("\n"));
+    }
+
+    @Override
+    public String toString() {
+        return String.format("name: %s, candidates: (%s)",
+                this.name, candidates.stream().map(Object::toString).collect(Collectors.joining(", ")));
     }
 }

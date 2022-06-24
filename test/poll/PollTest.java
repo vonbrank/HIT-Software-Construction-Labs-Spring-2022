@@ -107,8 +107,9 @@ class PollTest {
 
         System.out.println(poll.result());
 
-//        assertEquals(String.join("\n", selectedDishes), poll.result());
-//        assertEquals("name: Dishes Vote, candidates: (A, B, C, D, E, F)", poll.toString());
+        assertTrue("A, 1\nB, 2\nC, 3\nD, 4".equals(poll.result()) ||
+                "A, 1\nB, 2\nD, 3\nC, 4".equals(poll.result()));
+        assertEquals("name: Dishes Vote, candidates: (A, B, C, D, E, F)", poll.toString());
 
     }
 

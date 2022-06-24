@@ -3,6 +3,9 @@ package poll;
 import auxiliary.Person;
 import auxiliary.Voter;
 import org.junit.jupiter.api.Test;
+import pattern.ElectionCheckVoteValidityStrategy;
+import pattern.ElectionSelectionStrategy;
+import pattern.ElectionStatisticStrategy;
 import vote.Vote;
 import vote.VoteItem;
 import vote.VoteType;
@@ -28,7 +31,7 @@ class ElectionTest {
 
         Map<String, Integer> options = new HashMap<>();
         options.put("支持", 1);
-        options.put("反对", -1);
+        options.put("反对", 0);
         options.put("弃权", 0);
         VoteType voteType = new VoteType(options);
 
@@ -72,11 +75,24 @@ class ElectionTest {
 
         poll.addCandidates(people);
 
+        poll.setCheckVoteValidityStrategy(new ElectionCheckVoteValidityStrategy(3));
+
         poll.addVoters(voters);
 
-        voteItems.forEach(poll::addVote);
+        for (var voteItem : voteItems) {
+            poll.addVote(voteItem);
+        }
+//        voteItems.forEach(poll::addVote);
 
-        assertEquals(String.join("\n", selectedCandidates), poll.result());
+        poll.statistics(new ElectionStatisticStrategy());
+        poll.selection(new ElectionSelectionStrategy(3));
+
+//        System.out.println(poll.result());
+
+        assertEquals("C, 1\n" +
+                "D, 2\n" +
+                "E, 3", poll.result());
+        assertEquals("name: Election, candidates: (A, B, C, D, E)", poll.toString());
 
     }
 

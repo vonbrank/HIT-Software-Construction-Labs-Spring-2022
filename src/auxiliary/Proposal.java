@@ -63,9 +63,6 @@ public class Proposal {
 
 	@Override
 	public String toString() {
-		return "Proposal{" +
-				"title='" + title + '\'' +
-				", date=" + date +
-				'}';
+		return title;
 	}
 }

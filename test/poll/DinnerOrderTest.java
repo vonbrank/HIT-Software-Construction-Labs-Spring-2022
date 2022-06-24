@@ -5,6 +5,10 @@ import static org.junit.jupiter.api.Assertions.*;
 import auxiliary.Dish;
 import auxiliary.Voter;
 import org.junit.jupiter.api.Test;
+import pattern.DefaultCheckVoteValidityStrategy;
+import pattern.DinnerOrderSelectionStrategy;
+import pattern.DinnerOrderStatisticStrategy;
+import vote.RealNameVote;
 import vote.Vote;
 import vote.VoteItem;
 import vote.VoteType;
@@ -53,7 +57,7 @@ class DinnerOrderTest {
         voteItemsGrandpa.add(new VoteItem<>(dishes.get(3), "无所谓"));
         voteItemsGrandpa.add(new VoteItem<>(dishes.get(4), "不喜欢"));
         voteItemsGrandpa.add(new VoteItem<>(dishes.get(5), "不喜欢"));
-        Vote<Dish> voteGrandpa = new Vote<>(voteItemsGrandpa);
+        Vote<Dish> voteGrandpa = new RealNameVote<>(voteItemsGrandpa, new Voter("爷爷"));
 
         Set<VoteItem<Dish>> voteItemsDad = new HashSet<>();
         voteItemsDad.add(new VoteItem<>(dishes.get(0), "无所谓"));
@@ -62,7 +66,7 @@ class DinnerOrderTest {
         voteItemsDad.add(new VoteItem<>(dishes.get(3), "喜欢"));
         voteItemsDad.add(new VoteItem<>(dishes.get(4), "不喜欢"));
         voteItemsDad.add(new VoteItem<>(dishes.get(5), "喜欢"));
-        Vote<Dish> voteDad = new Vote<>(voteItemsDad);
+        Vote<Dish> voteDad = new RealNameVote<>(voteItemsDad, new Voter("爸爸"));
 
         Set<VoteItem<Dish>> voteItemsMum = new HashSet<>();
         voteItemsMum.add(new VoteItem<>(dishes.get(0), "喜欢"));
@@ -71,7 +75,7 @@ class DinnerOrderTest {
         voteItemsMum.add(new VoteItem<>(dishes.get(3), "不喜欢"));
         voteItemsMum.add(new VoteItem<>(dishes.get(4), "喜欢"));
         voteItemsMum.add(new VoteItem<>(dishes.get(5), "不喜欢"));
-        Vote<Dish> voteMum = new Vote<>(voteItemsMum);
+        Vote<Dish> voteMum = new RealNameVote<>(voteItemsMum, new Voter("妈妈"));
 
         Set<VoteItem<Dish>> voteItemsSon = new HashSet<>();
         voteItemsSon.add(new VoteItem<>(dishes.get(0), "喜欢"));
@@ -80,7 +84,7 @@ class DinnerOrderTest {
         voteItemsSon.add(new VoteItem<>(dishes.get(3), "喜欢"));
         voteItemsSon.add(new VoteItem<>(dishes.get(4), "喜欢"));
         voteItemsSon.add(new VoteItem<>(dishes.get(5), "不喜欢"));
-        Vote<Dish> voteSon = new Vote<>(voteItemsSon);
+        Vote<Dish> voteSon = new RealNameVote<>(voteItemsSon, new Voter("儿子"));
 
         List<String> selectedDishes = List.of("A", "B", "C", "D");
 
@@ -90,12 +94,21 @@ class DinnerOrderTest {
 
         poll.addVoters(voters);
 
+        poll.setCheckVoteValidityStrategy(new DefaultCheckVoteValidityStrategy());
+
         poll.addVote(voteGrandpa);
         poll.addVote(voteDad);
         poll.addVote(voteMum);
         poll.addVote(voteSon);
 
-        assertEquals(String.join("\n", selectedDishes), poll.result());
+        poll.statistics(new DinnerOrderStatisticStrategy());
+        poll.selection(new DinnerOrderSelectionStrategy(4));
+
+//        assertEquals(String.join("\n", selectedDishes), poll.result());
+
+        assertTrue("A, 1\nB, 2\nC, 3\nD, 4".equals(poll.result()) ||
+                "A, 1\nB, 2\nD, 3\nC, 4".equals(poll.result()));
+        assertEquals("name: Dishes Vote, candidates: (A, B, C, D, E, F)", poll.toString());
 
     }
 

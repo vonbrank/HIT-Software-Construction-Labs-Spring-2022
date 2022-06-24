@@ -41,8 +41,6 @@ public class Voter {
 
     @Override
     public String toString() {
-        return "Voter{" +
-                "ID='" + ID + '\'' +
-                '}';
+        return ID;
     }
 }

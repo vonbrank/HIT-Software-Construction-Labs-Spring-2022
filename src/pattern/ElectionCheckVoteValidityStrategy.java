@@ -1,9 +1,14 @@
 package pattern;
 
+import auxiliary.Voter;
+import exception.VoteInvalidException;
+import vote.RealNameVote;
 import vote.Vote;
 import vote.VoteType;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class ElectionCheckVoteValidityStrategy extends DefaultCheckVoteValidityStrategy {
@@ -15,7 +20,7 @@ public class ElectionCheckVoteValidityStrategy extends DefaultCheckVoteValidityS
      *
      * @param quantity 支持票数量上限
      */
-    ElectionCheckVoteValidityStrategy(int quantity) {
+    public ElectionCheckVoteValidityStrategy(int quantity) {
         this.quantity = quantity;
     }
 

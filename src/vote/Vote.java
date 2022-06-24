@@ -1,9 +1,6 @@
 package vote;
 
-import java.util.Calendar;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 //immutable
@@ -15,6 +12,8 @@ public class Vote<C> {
     private Set<VoteItem<C>> voteItems = new HashSet<>();
     // 投票时间
     private Calendar date = Calendar.getInstance();
+    // 选票 id
+    long id;
 
     // Rep Invariants
     //   voteItems 和 date 都不为 null 且 Vote<C> 本身是 immutable 的
@@ -35,6 +34,8 @@ public class Vote<C> {
      */
     public Vote(Set<VoteItem<C>> voteItems) {
         this.voteItems.addAll(voteItems);
+        Random r = new Random();
+        this.id = r.nextLong();
     }
 
     /**
@@ -62,7 +63,7 @@ public class Vote<C> {
 
     @Override
     public int hashCode() {
-        return Objects.hash(voteItems);
+        return Objects.hash(voteItems, id);
     }
 
     @Override
@@ -70,6 +71,6 @@ public class Vote<C> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Vote<?> vote = (Vote<?>) o;
-        return voteItems.equals(vote.voteItems);
+        return voteItems.equals(vote.voteItems) && id == vote.id;
     }
 }

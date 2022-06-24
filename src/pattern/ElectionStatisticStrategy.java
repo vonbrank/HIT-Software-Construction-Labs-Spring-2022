@@ -29,6 +29,7 @@ public class ElectionStatisticStrategy implements StatisticsStrategy {
             Person candidate = voteItem.getCandidate();
             double score = res.get(candidate) + voteType.getScoreByOption(voteItem.getVoteValue());
             res.put(candidate, score);
+//            System.out.printf("candidate: %s, score: %s%n", candidate, score);
         }));
         return res;
     }
