@@ -10,7 +10,7 @@ import java.util.Set;
 public class RealNameVote<C> extends Vote<C> {
 
     //投票人
-    private Voter voter;
+    private final Voter voter;
 
     public RealNameVote(Set<VoteItem<C>> voteItems, Voter voter) {
         super(voteItems);

@@ -4,7 +4,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 //immutable
-public class Vote<C> {
+public class Vote<C> implements Voteable<C> {
 
     // 缺省为“匿名”投票，即不需要管理投票人的信息
 
