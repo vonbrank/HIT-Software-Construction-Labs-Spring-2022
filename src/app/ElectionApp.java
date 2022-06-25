@@ -49,8 +49,8 @@ public class ElectionApp {
 		VoteItem<Person> vi23 = new VoteItem<>(p3, "Waive");
 
 		// 创建2个投票人vr1、vr2的选票
-		Vote<Person> rv1 = new Vote<Person>(Set.of(vi11, vi12, vi13));
-		Vote<Person> rv2 = new Vote<Person>(Set.of(vi21, vi22, vi23));
+		Vote<Person> rv1 = new Vote<>(Set.of(vi11, vi12, vi13));
+		Vote<Person> rv2 = new Vote<>(Set.of(vi21, vi22, vi23));
 
 		// 创建投票活动
 		Poll<Person> poll = new Election();
@@ -71,10 +71,14 @@ public class ElectionApp {
 		poll.statistics(new ElectionStatisticStrategy());
 		// 按规则遴选
 		poll.selection(new ElectionSelectionStrategy(2));
-		// 输出遴选结果
+
 		VoteValidityRateVisitor<Person> voteValidityRateVisitor = new VoteValidityRateVisitor<>();
 		poll.accept(voteValidityRateVisitor);
+
+		// 输出遴选结果
+		System.out.println(poll);
 		System.out.printf("选票有效率为：%s\n", voteValidityRateVisitor.getVoteValidityRate());
+		System.out.println("结果：");
 		System.out.println(poll.result());
 	}
 

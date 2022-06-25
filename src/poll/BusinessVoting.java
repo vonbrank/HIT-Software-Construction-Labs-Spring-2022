@@ -1,6 +1,10 @@
 package poll;
 
 import auxiliary.Proposal;
+import pattern.*;
+import vote.VoteType;
+
+import java.util.Calendar;
 
 public class BusinessVoting extends GeneralPollImpl<Proposal> implements Poll<Proposal> {
     // Rep Invariants
@@ -26,6 +30,20 @@ public class BusinessVoting extends GeneralPollImpl<Proposal> implements Poll<Pr
         boolean tmp = super.checkRep();
         if (!tmp) res = false;
         return res;
+    }
+
+    @Override
+    public void setInfo(String name, Calendar date, VoteType type, int quantity) {
+        super.setInfo(name, date, type, quantity);
+        this.checkVoteValidityStrategy = new DefaultCheckVoteValidityStrategy();
+    }
+
+    public void statistics() {
+        statistics(new BusinessVotingStatisticStrategy());
+    }
+
+    public void selection() {
+        selection(new BusinessVotingSelectionStrategy());
     }
 
 }

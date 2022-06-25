@@ -8,7 +8,7 @@ import java.util.Calendar;
 
 public class DinnerOrder extends GeneralPollImpl<Dish> implements Poll<Dish> {
     // Rep Invariants
-    //   1 <= quantity <= candidates 数量
+    //   voters 数量 <= quantity <= candidates 数量
     //   投票人 voters 数量 >= 1
     //   候选对象 candidates 数量 >= 1
     //	 选票 votes 数量 >= 1
@@ -24,7 +24,7 @@ public class DinnerOrder extends GeneralPollImpl<Dish> implements Poll<Dish> {
     //   ADT 本身是 mutable 的，但是各 mutable 的 rep 不会作为某个方法的返回值。
     @Override
     boolean checkRep() {
-        boolean res = (1 <= quantity && quantity <= candidates.size());
+        boolean res = (voters.size() <= quantity && quantity <= candidates.size());
         boolean tmp = super.checkRep();
         if (!tmp) res = false;
         return res;
