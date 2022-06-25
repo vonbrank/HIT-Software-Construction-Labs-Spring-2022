@@ -110,19 +110,244 @@ https://github.com/ComputerScienceHIT/HIT-Lab2-120L02****
 
 分析四个应用场景的异同，理解需求：它们在哪些方面有共性、哪些方面有差异。
 
+客户端使用这几个场景过程中，过程是类似的：
+
+```java
+public class Main {
+    public static void mainn(String[] args) {
+        Poll<...> poll = new ...;
+        poll.setInfo(...);
+        poll.addVoters(...);
+        poll.addCandidates(...);
+        poll.addVote(...);
+        poll.statistics(...);
+        poll.selection(...);
+        System.out.printfln(poll.result());
+    }
+}
+```
+
+主要差异在于各类 `stragety` 的实现和 `addVote` `statistics` `selectoin` 的具体行为中。
+
 ## 3.2 ADT识别与设计
 
 该节是本实验的核心部分。
 
 ### 3.2.1 任务1：投票类型 `VoteType`
 
- 
+ `VoteType` 是用来存储投票中选项及其对应分数的 ADT，其 rep 等如图所示：
+
+```java
+//immutable
+public class VoteType {
+
+    // key为选项名、value为选项名对应的分数
+    private Map<String, Integer> options = new HashMap<>();
+
+    // Rep Invariants
+    //   每个选项名字都不相同
+    //   至少有一个选项
+    // Abstract Function
+    //   AF(options) = 一类投票选项，对于任意 (k, v) 属于 options ，表示存在名为 k 选项，其分数为 v
+    // Safety from Rep Exposure
+    //   VoteType 本身是 immutable 的，没有 mutator ，保证初始化后不会被修改
+    //   构造时传入的 Map 在赋值给 options 前会拷贝一份
+}
+```
+
+测试策略比较简单，本例中只提供一组测试样例即可完成所有方法的测试：
+
+```java
+class VoteTypeTest {
+
+	/* Testing strategy
+	 *
+	 * 提供一组 VoteType 选项及其分数：(["喜欢", 2], ["不喜欢", 0], ["无所谓", 1])
+	 * 测试 VoteType 的所有方法
+	 *
+	 */
+
+	@Test
+	void test() {
+		Map<String, Integer> options = new HashMap<>();
+		options.put("喜欢", 2);
+		options.put("不喜欢", 0);
+		options.put("无所谓", 1);
+		VoteType voteType = new VoteType(options);
+
+		assertTrue(voteType.checkLegality("喜欢"));
+		assertTrue(voteType.checkLegality("无所谓"));
+		assertFalse(voteType.checkLegality("非常喜欢！(❤ ω ❤)"));
+
+		assertEquals(2, voteType.getScoreByOption("喜欢"));
+		assertEquals(0, voteType.getScoreByOption("不喜欢"));
+		assertEquals(1, voteType.getScoreByOption("无所谓"));
+
+		Map<String, Integer> otherOptions = new HashMap<>();
+		otherOptions.put("喜欢", 2);
+		otherOptions.put("无所谓", 1);
+		VoteType otherVoteType = new VoteType(otherOptions);
+		assertNotEquals(voteType, otherVoteType);
+		assertNotEquals(voteType.hashCode(), otherVoteType.hashCode());
+		otherOptions.put("不喜欢", 0);
+		otherVoteType = new VoteType(otherOptions);
+		assertEquals(voteType, otherVoteType);
+		assertEquals(voteType.hashCode(), otherVoteType.hashCode());
+
+	}
+
+}
+```
+
+实现方面，`VoteType` 所有接口的 spec 描述都十分显然，直接模拟即可，以 `checkLegality` 为例：
+
+```java
+class VoteTypeTest {
+    ...
+    /**
+     * 判断一个投票选项是否合法（用于Poll中对选票的合法性检查）
+     * <p>
+     * 例如，投票人给出的投票选项是“Strongly reject”，但options中不包含这个选项，因此它是非法的
+     * <p>
+     * 不能改动该方法的参数
+     *
+     * @param option 一个投票选项
+     * @return 合法则true，否则false
+     */
+    public boolean checkLegality(String option) {
+        return options.get(option) != null;
+    }
+}
+```
+
+
 
 ### 3.2.2 任务2：投票项 `VoteItem<C>` 
 
- 
+ `VoteItem<C>` 是存储一张选票中，每个候选对象及其选项的对应关系，是 immutable 的，rep 等如下：
+
+```java
+//immutable
+public class VoteItem<C> {
+
+    // 本投票项所针对的候选对象
+    private C candidate;
+    // 对候选对象的具体投票选项，例如“支持”、“反对”等
+    // 无需保存具体数值，需要时可以从投票活动的VoteType对象中查询得到
+    private String value;
+
+    // Rep Invariants
+    //   本投票项针对的候选对象和投票选项都不为空
+    // Abstract Function
+    //   AF(candidate, value) = 一个针对 candidate 的投票项，投票选项为 value
+    // Safety from Rep Exposure
+    //   VoteItem<C> 是 immutable 的，candidate 和 value 只在构造函数中被赋值，没有其他 mutator
+}
+```
+
+测试策略同样是给出一组数据即可测完所有接口：
+
+```java
+class VoteItemTest {
+
+    /* Testing strategy
+     * 给出一个对于 Dish 的具体表决：(("A", 10), "喜欢")
+     * 测试 voteItem 中的所有方法
+     */
+    ...
+}
+```
+
+实现方面，`VoteItem` 与 `VoteType` 都是 immutable 的，可以实现其 `equals` 和 `hashcode` 方法：
+
+```java
+public class VoteItem<C> {
+    @Override
+    public int hashCode() {
+        return Objects.hash(candidate, value);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (!(obj instanceof VoteItem<?>)) return false;
+        VoteItem<?> otherVoteItem = (VoteItem<?>) obj;
+        return otherVoteItem.candidate.equals(this.candidate) && otherVoteItem.value.equals(this.value);
+    }
+}
+```
+
+
 
 ### 3.2.3 任务3：选票 `Vote`
+
+`Vote` 是一个投票人面对所有投票项的集合的 ADT，代表一个投票人对所有候选对象的选择。`Vote` 在生成时就是确定的，不可修改的，为了保证这一点，并区分不同的选票，可以为其添加一个字段 `id` ，这个 `id` 在构造时使用 Java 标准库提供的 `Random` 生成。`Vote` 的 rep 如下所示：
+
+```java
+//immutable
+public class Vote<C> implements Voteable<C> {
+
+    // 缺省为“匿名”投票，即不需要管理投票人的信息
+
+    // 一个投票人对所有候选对象的投票项集合
+    private Set<VoteItem<C>> voteItems = new HashSet<>();
+    // 投票时间
+    private Calendar date = Calendar.getInstance();
+    // 选票 id
+    long id;
+
+    // Rep Invariants
+    //   voteItems 和 date 都不为 null 且 Vote<C> 本身是 immutable 的
+    // Abstract Function
+    //   AF(voteItems, date) = 一次投票，voteItems 包含了改投票的所有内容，date 是这次投票的创建时间
+    // Safety from Rep Exposure
+    //   Vote<C> 是 immutable 的，voteItems 和 date 只在构造函数内被赋值，没有其他 mutator
+    //   返回 voteItems 的方法将执行防御式拷贝
+}
+```
+
+测试方面，仍然是采用一组数据尝试覆盖所有方法的策略：
+
+```java
+class VoteTest {
+
+    /*
+     * 提供一组对于 Dish 的表决：[("A", "喜欢"), ("B", "不喜欢")]
+     * 覆盖 vote 中所有方法
+     */
+}
+```
+
+同时评测其 `equals` 与 `hashcode` 方法，为了构造两个 `id` 相同的 `Vote` 便于测试，可以采用反射实现：
+
+```java
+Vote<Dish> vote = new Vote<Dish>(dishSet);
+Vote<Dish> otherVote = new Vote<Dish>(dishSet);
+
+Field f = vote.getClass().getDeclaredField("id");
+Object voteID = f.get(vote);
+f.set(otherVote, voteID);
+```
+
+实现方面，`Vote` 的构造函数如下所示：
+
+```java
+class VoteTest {
+    ...
+    /**
+     * 创建一个选票对象
+     * <p>
+     * 可以自行设计该方法所采用的参数
+     */
+    public Vote(Set<VoteItem<C>> voteItems) {
+        this.voteItems.addAll(voteItems);
+        Random r = new Random();
+        this.id = r.nextLong();
+    }
+}
+```
+
+构造函数中只传入一个 `Set` 即可，然后进行防御式拷贝。
 
 ### 3.2.4 任务4：投票活动 `Poll<C>` 的测试
 
