@@ -148,71 +148,68 @@ class CheckVoteValidityStrategyTest {
         Map<Vote<Dish>, Boolean> finalVotes1 = votes;
         assertThrows(VoteInvalidException.class, () -> cvvs.checkVoteValidity(voters, finalVotes1));
 
+        Vote<Dish> vote1 = new RealNameVote<>(Set.of(
+                new VoteItem<>(dishes.get(0), "喜欢"),
+                new VoteItem<>(dishes.get(1), "喜欢")),
+                new Voter("干饭人1"));
+        Vote<Dish> vote2 = new Vote<>(Set.of(
+                new VoteItem<>(dishes.get(0), "喜欢"),
+                new VoteItem<>(dishes.get(1), "喜欢")));
+        Vote<Dish> vote3;
+
 
         votes = Map.of(
-                new RealNameVote<>(Set.of(
-                        new VoteItem<>(dishes.get(0), "喜欢"),
-                        new VoteItem<>(dishes.get(1), "喜欢")),
-                        new Voter("干饭人1")), true,
-                new Vote<>(Set.of(
-                        new VoteItem<>(dishes.get(0), "喜欢"),
-                        new VoteItem<>(dishes.get(1), "喜欢"))), true
+                vote1, true,
+                vote2, true
         );
 
         Map<Vote<Dish>, Boolean> finalVotes = votes;
         assertThrows(VoteInvalidException.class, () -> cvvs.checkVoteValidity(voters, finalVotes));
 
 
+        vote1 = new RealNameVote<>(Set.of(
+                new VoteItem<>(dishes.get(0), "喜欢"),
+                new VoteItem<>(dishes.get(1), "喜欢")),
+                new Voter("干饭人1"));
+        vote2 = new RealNameVote<>(Set.of(
+                new VoteItem<>(dishes.get(0), "喜欢"),
+                new VoteItem<>(dishes.get(1), "不喜欢")),
+                new Voter("干饭人1"));
+        vote3 = new RealNameVote<>(Set.of(
+                new VoteItem<>(dishes.get(0), "喜欢"),
+                new VoteItem<>(dishes.get(1), "喜欢")),
+                new Voter("干饭人2"));
+
         votes = Map.of(
-                new RealNameVote<>(Set.of(
-                        new VoteItem<>(dishes.get(0), "喜欢"),
-                        new VoteItem<>(dishes.get(1), "喜欢")),
-                        new Voter("干饭人1")), true,
-                new RealNameVote<>(Set.of(
-                        new VoteItem<>(dishes.get(0), "喜欢"),
-                        new VoteItem<>(dishes.get(1), "不喜欢")),
-                        new Voter("干饭人1")), true,
-                new RealNameVote<>(Set.of(
-                        new VoteItem<>(dishes.get(0), "喜欢"),
-                        new VoteItem<>(dishes.get(1), "喜欢")),
-                        new Voter("干饭人2")), true
+                vote1, true,
+                vote2, true,
+                vote3, true
         );
 
         assertEquals(Map.of(
-                new RealNameVote<>(Set.of(
-                        new VoteItem<>(dishes.get(0), "喜欢"),
-                        new VoteItem<>(dishes.get(1), "喜欢")),
-                        new Voter("干饭人1")), false,
-                new RealNameVote<>(Set.of(
-                        new VoteItem<>(dishes.get(0), "喜欢"),
-                        new VoteItem<>(dishes.get(1), "不喜欢")),
-                        new Voter("干饭人1")), false,
-                new RealNameVote<>(Set.of(
-                        new VoteItem<>(dishes.get(0), "喜欢"),
-                        new VoteItem<>(dishes.get(1), "喜欢")),
-                        new Voter("干饭人2")), true
+                vote1, false,
+                vote2, false,
+                vote3, true
         ), cvvs.checkVoteValidity(voters, votes));
 
+
+        vote1 = new RealNameVote<>(Set.of(
+                new VoteItem<>(dishes.get(0), "喜欢"),
+                new VoteItem<>(dishes.get(1), "喜欢")),
+                new Voter("干饭人1"));
+        vote2 = new RealNameVote<>(Set.of(
+                new VoteItem<>(dishes.get(0), "喜欢"),
+                new VoteItem<>(dishes.get(1), "喜欢")),
+                new Voter("干饭人2"));
+
         votes = Map.of(
-                new RealNameVote<>(Set.of(
-                        new VoteItem<>(dishes.get(0), "喜欢"),
-                        new VoteItem<>(dishes.get(1), "喜欢")),
-                        new Voter("干饭人1")), true,
-                new RealNameVote<>(Set.of(
-                        new VoteItem<>(dishes.get(0), "喜欢"),
-                        new VoteItem<>(dishes.get(1), "喜欢")),
-                        new Voter("干饭人2")), true
+                vote1, true,
+                vote2, true
         );
 
         assertEquals(Map.of(
-                new RealNameVote<>(Set.of(
-                        new VoteItem<>(dishes.get(0), "喜欢"),
-                        new VoteItem<>(dishes.get(1), "喜欢")),
-                        new Voter("干饭人1")), true,
-                new RealNameVote<>(Set.of(
-                        new VoteItem<>(dishes.get(0), "喜欢"),
-                        new VoteItem<>(dishes.get(1), "喜欢")),
-                        new Voter("干饭人2")), true
+                vote1, true,
+                vote2, true
         ), cvvs.checkVoteValidity(voters, votes));
 
     }

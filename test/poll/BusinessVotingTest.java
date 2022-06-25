@@ -66,7 +66,7 @@ class BusinessVotingTest {
         poll.statistics(new BusinessVotingStatisticStrategy());
         poll.selection(new BusinessVotingSelectionStrategy());
 
-        assertEquals("提案1, 0", poll.result());
+        assertEquals("表决未通过！", poll.result());
         assertEquals("name: 商业表决, candidates: (提案1)", poll.toString());
 
         poll = new BusinessVoting();
@@ -92,7 +92,7 @@ class BusinessVotingTest {
         poll.statistics(new BusinessVotingStatisticStrategy());
         poll.selection(new BusinessVotingSelectionStrategy());
 
-        assertEquals("提案1, 1", poll.result());
+        assertEquals("表决通过！", poll.result());
         assertEquals("name: 商业表决, candidates: (提案1)", poll.toString());
 
     }

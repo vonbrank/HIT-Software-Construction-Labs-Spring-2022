@@ -33,7 +33,7 @@ public class GeneralPollImpl<C> implements Poll<C> {
     // 计票结果，key为候选对象，value为其得分
     protected Map<C, Double> statistics;
     // 遴选结果，key为候选对象，value为其排序位次
-    private Map<C, Double> results;
+    protected Map<C, Double> results;
     // 检查选票合法性策略
     CheckVoteValidityStrategy checkVoteValidityStrategy;
 

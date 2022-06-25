@@ -25,11 +25,11 @@ public class BusinessVotingApp {
 
 		// 设定投票人的权重
 		Map<Voter, Double> weightedVoters = new HashMap<>();
-		weightedVoters.put(voter1, 1.0);
-		weightedVoters.put(voter2, 1.0);
-		weightedVoters.put(voter3, 1.0);
-		weightedVoters.put(voter4, 1.0);
-		weightedVoters.put(voter5, 1.0);
+		weightedVoters.put(voter1, 5.0);
+		weightedVoters.put(voter2, 51.0);
+		weightedVoters.put(voter3, 10.0);
+		weightedVoters.put(voter4, 24.0);
+		weightedVoters.put(voter5, 20.0);
 
 		// 设定投票类型
 		VoteType voteType = new VoteType("\"支持\"|\"不支持\"|\"弃权\"");

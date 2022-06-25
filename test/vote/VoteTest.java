@@ -6,7 +6,9 @@ import auxiliary.Dish;
 import exception.StringFormatException;
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.Field;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 class VoteTest {
@@ -17,7 +19,7 @@ class VoteTest {
      */
 
     @Test
-    void test() {
+    void test() throws NoSuchFieldException, IllegalAccessException {
 
         Set<VoteItem<Dish>> dishSet = new HashSet<>(Set.of(
                 new VoteItem<>(new Dish("A", 10), "喜欢"),
@@ -31,6 +33,10 @@ class VoteTest {
         assertTrue(vote.candidateIncluded(new Dish("A", 10)));
 
         Vote<Dish> otherVote = new Vote<Dish>(dishSet);
+
+        Field f = vote.getClass().getDeclaredField("id");
+        Object voteID = f.get(vote);
+        f.set(otherVote, voteID);
 
         assertEquals(vote, otherVote);
         assertEquals(otherVote.hashCode(), vote.hashCode());

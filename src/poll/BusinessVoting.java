@@ -46,4 +46,17 @@ public class BusinessVoting extends GeneralPollImpl<Proposal> implements Poll<Pr
         selection(new BusinessVotingSelectionStrategy());
     }
 
+    @Override
+    public String result() {
+        boolean res = false;
+        for(var item : results.entrySet()) {
+            if (item.getValue() == 1.0) {
+                res = true;
+                break;
+            }
+        }
+        if(res) return "表决通过！";
+        return "表决未通过！";
+
+    }
 }
