@@ -44,3 +44,4 @@ public class DinnerOrder extends GeneralPollImpl<Dish> implements Poll<Dish> {
         selection(new DinnerOrderSelectionStrategy(quantity));
     }
 }
+

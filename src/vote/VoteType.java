@@ -122,5 +122,9 @@ public class VoteType {
     public String toString() {
         return options.toString();
     }
+
+    public Map<String, Integer> getOptions() {
+        return new HashMap<>(options);
+    }
 }
 
