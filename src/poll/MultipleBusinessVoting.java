@@ -1,16 +1,19 @@
 package poll;
 
-import auxiliary.Proposal;
-import pattern.*;
+import pattern.BusinessVotingSelectionStrategy;
+import pattern.BusinessVotingStatisticStrategy;
+import pattern.DefaultCheckVoteValidityStrategy;
 import vote.VoteType;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
+import java.util.stream.Collectors;
 
-public class BusinessVoting extends GeneralPollImpl<Proposal> implements Poll<Proposal> {
+public class MultipleBusinessVoting extends BusinessVoting {
     // Rep Invariants
-    //   quantity = 1
+    //   quantity = 候选对象 candidates 数量
     //   投票人 voters 数量 >= 1
-    //   候选对象 candidates 数量 = 1
     //	 选票 votes 数量 >= 1
     //   候选结果数量 results = 0, 1
     //   voteType 有 (支持, 1), (反对, -1), (弃权, 0)
@@ -39,25 +42,23 @@ public class BusinessVoting extends GeneralPollImpl<Proposal> implements Poll<Pr
     }
 
     public void statistics() {
-        statistics(new BusinessVotingStatisticStrategy());
+        statistics(new BusinessVotingStatisticStrategy(quantity));
     }
 
     public void selection() {
-        selection(new BusinessVotingSelectionStrategy());
+        selection(new BusinessVotingSelectionStrategy(quantity));
     }
 
     @Override
     public String result() {
         boolean res = false;
-        for(var item : results.entrySet()) {
-            if (item.getValue() == 1.0) {
-                res = true;
-                break;
-            }
+        List<String> resStr = new ArrayList<>();
+        for (var item : results.entrySet()) {
+            if (item.getValue() == 1.0)
+                resStr.add(String.format("%s 表决通过", item.getKey()));
+            else resStr.add(String.format("%s 表决未通过", item.getKey()));
         }
-        if(res) return "表决通过！";
-        return "表决未通过！";
+        return String.join("\n", resStr);
 
     }
 }
-

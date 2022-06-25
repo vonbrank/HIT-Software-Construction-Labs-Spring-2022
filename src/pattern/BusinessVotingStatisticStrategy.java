@@ -12,19 +12,30 @@ import java.util.Set;
 
 public class BusinessVotingStatisticStrategy implements StatisticsStrategy {
 
+    // 提案数量
+    int quantity;
+
+    public BusinessVotingStatisticStrategy () {
+        quantity = 1;
+    }
+
+    public BusinessVotingStatisticStrategy (int quantity) {
+        this.quantity = quantity;
+    }
+
     /**
      * 根据投票信息，统计投票结果
      *
      * @param voteType   投票选项类型
      * @param voters 投票人及其权重
-     * @param candidates 提案列表，长度为 1
+     * @param candidates 提案列表，长度为 quantity
      * @param votes      输入的投票信息，需要是 RealNameVote，且其 voter 是 WeightVoter 类型的
      * @return 计票结果，任意 (k, v) 属于返回的 Map ，表示提案 k 支持的百分比 v，其中 v 表示所有对 k 支持投票人的权重和
      */
     @Override
     public <Proposal> Map<Proposal, Double> getVoteStatistics(
             VoteType voteType, Map<Voter, Double> voters, List<Proposal> candidates, Set<Vote<Proposal>> votes) {
-        if (candidates.size() != 1) throw new RuntimeException("候选提案数只能为 1 .");
+        if (candidates.size() != quantity) throw new RuntimeException(String.format("候选提案数只能为 %d .", quantity));
         Map<Proposal, Double> res = new HashMap<>();
         candidates.forEach(candidate -> res.put(candidate, 0.0));
         votes.forEach(vote -> {
