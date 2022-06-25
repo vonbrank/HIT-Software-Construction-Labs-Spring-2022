@@ -1,9 +1,8 @@
 package pattern;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import poll.Election;
+
+import java.util.*;
 
 public class ElectionSelectionStrategy implements SelectionStrategy {
 
@@ -13,6 +12,8 @@ public class ElectionSelectionStrategy implements SelectionStrategy {
     public ElectionSelectionStrategy(int quantity) {
         this.quantity = quantity;
     }
+
+    protected Comparator<Node> cmp = (node1, node2) -> (int) Math.round(node2.score - node1.score);
 
     /**
      * 根据候选人得分计算每个候选人的名次
@@ -25,7 +26,7 @@ public class ElectionSelectionStrategy implements SelectionStrategy {
     public <C> Map<C, Double> getSelectionResult(Map<C, Double> statistics) {
         List<Node<C>> nodeList = new ArrayList<>();
         statistics.forEach((k, v) -> nodeList.add(new Node<>(k, v)));
-        nodeList.sort((node1, node2) -> (int) Math.round(node2.score - node1.score));
+        nodeList.sort(cmp);
         if (statistics.size() <= quantity) {
             Map<C, Double> res = new HashMap<>();
             for (int i = 0; i < nodeList.size(); i++) {
@@ -48,7 +49,7 @@ public class ElectionSelectionStrategy implements SelectionStrategy {
         return res;
     }
 
-    private class Node<C> {
+    protected static class Node<C> {
         final public C candidate;
         final public double score;
 
