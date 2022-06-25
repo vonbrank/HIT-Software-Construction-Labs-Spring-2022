@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 import auxiliary.Voter;
 import exception.VoteInvalidException;
 import pattern.CheckVoteValidityStrategy;
+import pattern.PollVisitor;
 import pattern.SelectionStrategy;
 import pattern.StatisticsStrategy;
 import vote.VoteType;
@@ -130,6 +131,11 @@ public class GeneralPollImpl<C> implements Poll<C> {
         return list.stream()
                 .map(entry -> entry.getKey() + ", " + (entry.getValue()).intValue())
                 .collect(Collectors.joining("\n"));
+    }
+
+    @Override
+    public void accept(PollVisitor<C> pollVisitor) {
+        pollVisitor.visitVote(votes);
     }
 
     @Override

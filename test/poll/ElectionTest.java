@@ -1,11 +1,13 @@
 package poll;
 
 import auxiliary.Person;
+import auxiliary.Proposal;
 import auxiliary.Voter;
 import org.junit.jupiter.api.Test;
 import pattern.ElectionCheckVoteValidityStrategy;
 import pattern.ElectionSelectionStrategy;
 import pattern.ElectionStatisticStrategy;
+import pattern.VoteValidityRateVisitor;
 import vote.Vote;
 import vote.VoteItem;
 import vote.VoteType;
@@ -83,6 +85,10 @@ class ElectionTest {
             poll.addVote(voteItem);
         }
 //        voteItems.forEach(poll::addVote);
+
+        VoteValidityRateVisitor<Person> voteValidityRateVisitor = new VoteValidityRateVisitor<>();
+        poll.accept(voteValidityRateVisitor);
+        assertEquals(0.833, voteValidityRateVisitor.getVoteValidityRate(), 0.01);
 
         poll.statistics(new ElectionStatisticStrategy());
         poll.selection(new ElectionSelectionStrategy(3));

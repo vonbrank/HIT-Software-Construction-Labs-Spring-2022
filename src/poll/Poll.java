@@ -6,6 +6,7 @@ import java.util.Map;
 
 import auxiliary.Voter;
 import pattern.CheckVoteValidityStrategy;
+import pattern.PollVisitor;
 import pattern.SelectionStrategy;
 import pattern.StatisticsStrategy;
 import vote.Vote;
@@ -79,4 +80,10 @@ public interface Poll<C> {
      * @return 一个表示遴选结果的字符串，每行包含：候选对象ID、排序
      */
     public String result();
+
+    /**
+     * 传入观察者，依次调用观察者的方法访问数据
+     * @param pollVisitor 传入的数据
+     */
+    public void accept(PollVisitor<C> pollVisitor);
 }
