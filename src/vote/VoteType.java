@@ -44,7 +44,7 @@ public class VoteType {
      */
     public VoteType(String option) throws StringFormatException {
         String errorMsg = "选项格式错误，参考格式：\"喜欢\"(2)|\"不喜欢\"(0)|\"无所谓\"(1)。";
-        String regexWithScore = "\"[^\"]+\"\\(-?\\d\\)(\\|\"[^\"]+\"\\(-?\\d\\))*";
+        String regexWithScore = "\"[^\"]+\"\\(-?\\d+\\)(\\|\"[^\"]+\"\\(-?\\d+\\))*";
         String regexWithoutScore = "\"[^\"]+\"(\\|\"[^\"]+\")*";
         boolean withScore;
         if (option.matches(regexWithScore))
@@ -54,7 +54,7 @@ public class VoteType {
         } else throw new StringFormatException(errorMsg);
         List<String> optionsList = List.of(option.split("\\|"));
         Pattern optionNamePattern = Pattern.compile("\"[^\"]{1,5}\"");
-        Pattern optionScorePattern = Pattern.compile("\\(-?\\d\\)");
+        Pattern optionScorePattern = Pattern.compile("\\(-?\\d+\\)");
         for (var optionStr : optionsList) {
             Matcher optionNameMatcher = optionNamePattern.matcher(optionStr);
             Matcher optionScoreMatcher = optionScorePattern.matcher(optionStr);
