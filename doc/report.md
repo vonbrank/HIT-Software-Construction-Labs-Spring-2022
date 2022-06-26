@@ -618,19 +618,487 @@ public class Election extends GeneralPollImpl<Person> implements Poll<Person> {
 
 ### 3.3 ADT行为的设计与实现
 
-
-
 #### 3.3.1 任务7：合法性检查
+
+根据要求，投票过程中有两处需要检查合法性的地方。
+
+在 `addVote` 方法中，需要检查并标记每张选票的合法性，满足：
+
++ 一张选票中没有包含本次投票活动中的所有候选人 
++ 一张选票中包含了不在本次投票活动中的候选人 
++  一张选票中出现了本次投票不允许的选项值 
++ 一张选票中有对同一个候选对象的多次投票 
++ （仅应用 2）一张选票中对所有候选对象的支持票数量大于 $k$ 
+
+如上文所述，此处采用的默认处理方法是，对于传入的 `vote` ，检查其合法性，将得到的合法性传入 `votes` ，这是一个 `Vote` 到 `Boolean` 的映射，用来标记选票合法性：
+
+```java
+public class GeneralPollImpl<C> implements Poll<C> {
+    ...
+    @Override
+    public void addVote(Vote<C> vote) {
+        // 此处应首先检查该选票的合法性并标记，为此需扩展或修改rep
+        this.votes.put(vote, checkVoteValidityStrategy.checkAddVoteValidity(
+                new ArrayList<>(candidates), vote, voteType));
+
+        assert checkRep();
+    }
+    ...
+}
+```
+
+其中 `checkVoteValidityStrategy` 同样是作为委托，用于检查选票合法性的辅助 ADT，其接口形式如下：
+
+```java
+public interface CheckVoteValidityStrategy {
+    /**
+     * 根据固有候选对象、投票选项，检查新增投票是否合法
+     *
+     * @param targetCandidates 候选对象
+     * @param newVote          新增投票
+     * @param voteType         投票选项
+     * @param <C>              候选对象类型
+     * @return 合法返回 true ，否则返回 false
+     */
+    <C> boolean checkAddVoteValidity(List<C> targetCandidates, Vote<C> newVote, VoteType voteType);
+
+    /**
+     * 根据投票人列表和选票列表，在开始计票前检验其合法性
+     * @param voters 投票人列表及其权重
+     * @param votes 选票列表及其有效性，若一个投票人提交了多张选票，则它们均为非法，计票时不计算在内，即被标记为 false
+     *              此方法将直接修改这个对象
+     * @param <C> 候选人类型
+     * @throws VoteInvalidException 有人没有投票时抛出异常
+     * @return 返回修改后的有效票集合
+     */
+    <C> Map<Vote<C>, Boolean> checkVoteValidity(
+        Map<Voter, Double> voters, Map<Vote<C>, Boolean> votes) throws VoteInvalidException;
+}
+
+```
+
+实现类 `DefaultCheckVoteValidityStrategy` 默认选票是实名选票，非实名选票将报异常。 `ElectionCheckVoteValidityStrategy` 用来检查非实名选票的合法性。
+
+在 `addVote` 阶段，选票使用 `checkAddVoteValidity` 来检查，不合法的选票返回 `false` 。
+
+在 `statistics` 阶段也要检查选票合法性，满足：
+
++ 若尚有投票人还未投票，则不能开始计票；
++ 若一个投票人提交了多次选票，则它们均为非法，计票时不计算在内
+
+这两者都依赖实名选票，因此 `Election` 的 `statistics` 方法中不会调用 `checkVoteValidity` 检查合法性。匿名实名选票的实现将在稍后讲述。`checkVoteValidity` 返回的是一个新的 `Map<Vote, Boolean>` ，`Vote` 和无效和非法两种，无效选票将标记为 `false` ，在返回的 `Map` 中体现，而选票的非法表明又人未投票，将抛出自定义的 `checked` 异常 `VoteInvalidException` 。
+
+测试方面，针对 `addVote` 阶段的测试策略如下：
+
+```txt
+/*
+ * Testing strategy
+ * 等价类划分：
+ * 添加投票阶段有效性：
+ * 1. newVote 没有包含 targetCandidates 中所有候选对象
+ * 2. newVote 包含了不在 targetCandidates 中的候选对象
+ * 3. newVote 出现了 voteType 中没有的选项
+ * 4. newVote 中出现了对 同一个对象的多次投票
+ * 5. newVote 的支持数超出限制（仅针对 ElectionCheckVoteValidityStrategy ）
+ */
+```
+
+针对 `statistics` 阶段的测试策略如下：
+
+```txt
+/*
+ * 计票前阶段有效性：
+ * Default:
+ * 1. 还有人没有投票
+ * 2. 都投票了，但有人没有实名
+ * 2. 都投票了，都实名了，但有人重复投票
+ * 3. 都投票了，都实名了，且没人重复投票
+ */
+```
+
+实现方面，`DefaultCheckVoteValidityStrategy` 的 `checkAddVoteValidity` 用于检查默认状态下选票的上述前 $4$ 点要求，`ElectionCheckVoteValidityStrategy` 是前者的子类，额外检查第 $5$ 点要求。`checkVoteValidity` 是公用的，反正 `ElectionCheckVoteValidityStrategy` 受委托时也不会被调用，毕竟是匿名投票。
+
+
 
 #### 3.3.2 任务8：采用 Strategy 设计模式实现灵活的计票规则
 
+三种场景的计票方式各不相同，适合使用策略模式。计票策略的总接口为 `StatisticsStrategy` ，功能如下：
+
+```java
+public interface StatisticsStrategy {
+    /**
+     * 根据候选人列表、投票信息，统计投票结果
+     * @param voteType 投票选项类型
+     * @param voters 投票人及其权重
+     * @param candidates 输入的候选人列表
+     * @param votes 输入有效投票信息
+     * @return 计票结果，任意 (k, v) 属于返回的 Map ，表示候选人 k 的得分为 v
+     */
+     <C> Map<C, Double> getVoteStatistics(VoteType voteType,  Map<Voter, Double> voters, List<C> candidates, Set<Vote<C>> votes);
+}
+```
+
+传入选票数据，返回一个候选人到 `Double` 的得分，表示候选对象的评分。
+
+三种计票方式各不相同，故设计 `StatisticsStrategy` 的三种实现：`BusinessVotingStatisticStrategy` `DinnerOrderStatisticStrategy` 和 `ElectionStatisticStrategy` 。
+
+以 `BusinessVotingSelectionStrategy` 为例，商业表决中，默认提案只有一个，计算前应该先检查，不合法将抛出异常。而后计算对这个表决的所有选票，将支持的股东的权重之和：
+
+```java
+public class BusinessVotingStatisticStrategy implements StatisticsStrategy {
+    @Override
+    public <Proposal> Map<Proposal, Double> getVoteStatistics(
+            VoteType voteType, Map<Voter, Double> voters, 
+        	List<Proposal> candidates, Set<Vote<Proposal>> votes) {
+        if (candidates.size() != 1) throw new RuntimeException("候选提案数只能为 1 .");
+        Map<Proposal, Double> res = new HashMap<>();
+        candidates.forEach(candidate -> res.put(candidate, 0.0));
+        votes.forEach(vote -> {
+            if (!(vote instanceof RealNameVote)) throw new RuntimeException("商业提案为实名计票");
+            RealNameVote<Proposal> realNameVote = (RealNameVote<Proposal>) vote;
+            double weight = voters.get(((RealNameVote<Proposal>) vote).getVoter());
+            vote.getVoteItems().forEach(voteItem -> {
+                Proposal candidate = voteItem.getCandidate();
+                if (voteItem.getVoteValue().equals("支持")) {
+                    double newWeight = res.get(candidate) + weight;
+                    res.put(candidate, newWeight);
+                }
+            });
+        });
+        return res;
+
+}
+```
+
+`DinnerOrderStatisticStrategy` 和 `ElectionStatisticStrategy` 与此大同小异。`Poll<C>` 中对计票策略的使用上文已经演示，在此不再赘述。
+
+测试方面，三种场景的测试策略如下：
+
+```txt
+/*
+ * Testing strategy
+ * 提案计票的等价类划分：
+ * 1. 提案数不是 1
+ * 2. 提案数为 1 ，vote 类型为 Vote
+ * 3. 提案数为 1 ，vote 类型为 RealNameVote，其 voter 类型为 Voter
+ *
+ * 点菜计票的等价类划分：
+ * 1. vote 类型为 Vote
+ * 2. vote 类型为 RealNameVote，其 voter 类型为 Voter
+ * 3. vote 类型为 RealNameVote，其 voter 类型为 WeightVoter
+ *
+ * 选举计票的等价类划分：
+ * 任意一种合法的输入
+ *
+ */
+```
+
+单元测试代码照例模拟即可。
+
+
+
 #### 3.3.3 任务9：采用 Strategy 设计模式实现灵活的遴选规则
+
+三种场景的遴选方式也不相同，同样使用策略模式，在 `selection` 方法中传入特定策略，返回计票结果赋值给 `results` 即可。总接口为 `SelectionStrategy` ，定义如下：
+
+```java
+public interface SelectionStrategy {
+    /**
+     * 根据候选人得分计算每个候选人的名次
+     *
+     * @param statistics 输入的候选人得分，任意 (k, v) 属于 statistics 表示候选人 k 得分为 v
+     * @param <C>        候选对象类型
+     * @return 候选对象名次，任意 (k, v) 属于返回值，表示候选对象 k 的名次为 v
+     */
+    <C> Map<C, Double> getSelectionResult(Map<C, Double> statistics);
+}
+```
+
+即传入数据，返回候选对象到一个 `Double` 的映射，表示其名次。
+
+`BusinessVotingStatisticStrategy` `DinnerOrderStatisticStrategy` 和 `ElectionStatisticStrategy` 代表三个场景的不同遴选策略实现。
+
+同样以 `BusinessVoting` 为例，只需要比较唯一提案的得分与 `2/3 * 100` 的大小，若大于，说明提案通过，提案映射为 `1.0` ；否则不通过，映射为 `0.0` ：
+
+```java
+
+public class BusinessVotingSelectionStrategy implements SelectionStrategy {
+    @Override
+    public <C> Map<C, Double> getSelectionResult(Map<C, Double> statistics) {
+        if (statistics.size() != 1) throw new RuntimeException("应该只有一个提案");
+        for (C candidate : statistics.keySet()) {
+            if (!(statistics.get(candidate) >= 0 && statistics.get(candidate) <= 100))
+                throw new RuntimeException("提案支持率百分比应该在 0 - 100 之间");
+            return Map.of(candidate, statistics.get(candidate) >= 200 / 3.0 ? 1.0 : 0.0);
+        }
+        return null;
+    }
+}
+```
+
+使用方式同样容易，由于三个场景遴选都是针对 `statistics` 字段进行的，不需要额外特殊操作，可以在 `GeneralPollImpl` 中完成：
+
+```java
+public class GeneralPollImpl<C> implements Poll<C> {
+    @Override
+    public void selection(SelectionStrategy ss) {
+        this.results = ss.getSelectionResult(statistics);
+    }
+}
+```
+
+测试方法，有测试策略：
+
+```txt
+/*
+ * Testing strategy
+ * 等价类划分：
+ *
+ * 商业投票:
+ * 1. statistics.size() != 1
+ * 2. statistics.size() = 1 ，提案百分比不在 0 - 100 之间
+ * 3. statistics.size() = 1 ，提案百分比在 0 - 100 之间，表决通过
+ * 4. statistics.size() = 1 ，提案百分比在 0 - 100 之间，表决不通过
+ *
+ * 选举:
+ * 1. statistics.size() <= k
+ * 2. statistics.size() > k ，存在不确定
+ * 3. statistics.size() > k ，不存在不确定
+ *
+ * 针对点菜的样例
+ * 1. statistics.size() <= k
+ * 2. statistics.size() > k ，存在不确定
+ * 3. statistics.size() > k ，不存在不确定
+ */
+```
+
+照例模拟即可。
+
+
 
 #### 3.3.4 任务10：处理匿名和实名投票
 
+实现匿名和实名投票的分别有直接继承和使用装饰器模式。直接继承较为简单，直接增加一个新的 `voter` 字段即可，易于编写 `equals` 和 `hashcode` 方法也使得其易于在集合中使用，本项目中将使用这种方法。装饰器模式使得扩展和组合 `Vote` 的特性非常容易。
+
+原本的 `Vote` 的 rep 与构造器如下：
+
+```java
+public class Vote<C> implements Voteable<C> {
+
+    // 缺省为“匿名”投票，即不需要管理投票人的信息
+
+    // 一个投票人对所有候选对象的投票项集合
+    private Set<VoteItem<C>> voteItems = new HashSet<>();
+    // 投票时间
+    private Calendar date = Calendar.getInstance();
+    // 选票 id
+    long id;
+    public Vote(Set<VoteItem<C>> voteItems) {
+        this.voteItems.addAll(voteItems);
+        Random r = new Random();
+        this.id = r.nextLong();
+    }
+    ...
+}
+```
+
+`RealNameVote` 继承之，增加 `Voter` 字段：
+
+```java
+//immutable
+public class RealNameVote<C> extends Vote<C> {
+
+    //投票人
+    private final Voter voter;
+
+    public RealNameVote(Set<VoteItem<C>> voteItems, Voter voter) {
+        super(voteItems);
+        this.voter = voter;
+    }
+    ...
+}
+```
+
+再重写 `equals` 和 `hashcode` 方法即可。
+
+要使用装饰器模式向 `Vote` 上装饰 `Voter` 属性，可以参考装饰器模式结构：
+
+![](https://pic2.zhimg.com/v2-c9f694b243f901a2bae58d54e2353b95_b.png)
+
+先将 `Vote` 抽象为 `Voteable` 接口，对应图中的 `Component` ：
+
+```java
+public interface Voteable<C> {
+    /**
+     * 查询该选票中包含的所有投票项
+     *
+     * @return 所有投票项
+     */
+    public Set<VoteItem<C>> getVoteItems();
+    /**
+     * 一个特定候选人是否包含本选票中
+     *
+     * @param candidate 待查询的候选人
+     * @return 若包含该候选人的投票项，则返回true，否则false
+     */
+    public boolean candidateIncluded(C candidate);
+}
+```
+
+原来的 `Vote` 对应图中的 `ConcreteComponent` ，在装饰器模式中属于核心类地位。
+
+再创建总装饰器类和实名选票装饰器：
+
+```java
+public abstract class VoteDecorator<C> implements Voteable<C> {
+    Voteable<C> target;
+    public VoteDecorator(Voteable<C> target) {
+        this.target = target;
+    }
+    @Override
+    public Set<VoteItem<C>> getVoteItems() {
+        return target.getVoteItems();
+    }
+    @Override
+    public boolean candidateIncluded(C candidate) {
+        return target.candidateIncluded(candidate);
+    }
+}
+public class RealNameVoteDecorator<C> extends VoteDecorator<C> {
+    private final Voter voter;
+    public RealNameVoteDecorator(Voteable<C> target, Voter voter) {
+        super(target);
+        this.voter = voter;
+    }
+    public Voter getVoter() {
+        return this.voter;
+    }
+}
+```
+
+分别对应图中的 `Decorator` 和 `ConcreteDecorator1, ConcreteDecorator2, ...` 。要创建一个带实名装饰器的 `Voteable` ，可以写成：
+
+```java
+public class VoteApp {
+    public static void main(String[] args) {
+        Voter voter2 = new Voter("Voter-02");
+        Voteable<Person> realNameVoteDecorator = new RealNameVoteDecorator<>(vote, voter2);
+    }
+}
+```
+
+
+
 #### 3.3.5 任务11：采用 Visitor 设计模式实现功能扩展
 
+访问者模式是将数据与操作解耦的设计模式，要使用访问者模式操作 `Poll<C>` 中的数据，可以先定义访问者接口：
+
+```java
+public interface PollVisitor<C> {
+    void visitVote(Map<Vote<C>, Boolean> votes);
+}
+```
+
+因为本例的需求中需要计算有效投票的百分比，因此访问者接口中暂时只有 `visitVote` 方法，接受一个选票到 `Boolean` 的映射。
+
+实际使用时，将有效率保存在一个 `voteValidityRate` 字段中，使用 `getter` 取出：
+
+```java
+public class VoteValidityRateVisitor<C> implements PollVisitor<C> {
+    private double voteValidityRate = 0;
+    @Override
+    public void visitVote(Map<Vote<C>, Boolean> votes) {
+        int total = votes.size();
+        AtomicInteger validityNum = new AtomicInteger();
+        votes.forEach((k, v) -> {
+            if (v) validityNum.getAndIncrement();
+        });
+        voteValidityRate = validityNum.get() / (double) total;
+    }
+    public double getVoteValidityRate() {
+        return voteValidityRate;
+    }
+}
+```
+
+`Poll<C>` 中增加一个接口 `public void accept(PollVisitor<C> pollVisitor);` 用于传入访问者，然后进行调用：
+
+```java
+public class GeneralPollImpl<C> implements Poll<C> {
+	@Override
+    public void accept(PollVisitor<C> pollVisitor) {
+        pollVisitor.visitVote(votes);
+    }
+}
+```
+
+ 在客户端中使用如下所示：
+
+```java
+public class BusinessVotingApp {
+
+	public static void main(String[] args) throws Exception {
+        ...
+        VoteValidityRateVisitor<Proposal> voteValidityRateVisitor = new VoteValidityRateVisitor<>();
+        poll.accept(voteValidityRateVisitor);
+        System.out.printf("选票有效率为：%s\n", voteValidityRateVisitor.getVoteValidityRate());
+        ...
+    }
+}
+```
+
+
+
 #### 3.3.6 任务12：基于语法的数据读入
+
+这是针对 `VoteType` 的新需求，即要求传入一个形如 `"支持"(1)|"不支持"(-1)|"无所谓"(0)` 字符串，将其解析为选项与评分的映射。其中选项名称长度不大于 $5$ ，分数只允许整数。还需要支持形如 `"Yes"|"No"|"SoSo"` 的无得分选项。
+
+针对这两种情况，可以分别编写正则表达式：
+
++ 有得分：`"[^"]+"\(-?\d\)(\|"[^"]+"\(-?\d\))*`
+
++ 无得分：`"[^"]+"(\|"[^"]+")*`
+
+只有通过这两种 regex 中的任意一种测试才能继续，否则将抛出自定义的 `StringFormatException` 异常。
+
+而后使用 `|` 分割字符串，依次使用表达式 `"[^"]{1,5}"` 匹配选项部分，`\(-?\d\)` 匹配数值部分（如果有的话），使用 Java 类库 `Pattern` 和 `Matcher` 截断出所需要的字符，完成匹配。
+
+```java
+public class VoteType {
+    public VoteType(String option) throws StringFormatException {
+        String errorMsg = "选项格式错误，参考格式：\"喜欢\"(2)|\"不喜欢\"(0)|\"无所谓\"(1)。";
+        String regexWithScore = "\"[^\"]+\"\\(-?\\d\\)(\\|\"[^\"]+\"\\(-?\\d\\))*";
+        String regexWithoutScore = "\"[^\"]+\"(\\|\"[^\"]+\")*";
+        boolean withScore;
+        if (option.matches(regexWithScore))
+            withScore = true;
+        else if (option.matches(regexWithoutScore)) {
+            withScore = false;
+        } else throw new StringFormatException(errorMsg);
+        List<String> optionsList = List.of(option.split("\\|"));
+        Pattern optionNamePattern = Pattern.compile("\"[^\"]{1,5}\"");
+        Pattern optionScorePattern = Pattern.compile("\\(-?\\d\\)");
+        ...// 以下内容此处略
+    }
+}
+```
+
+测试方面，考虑 $5$ 字符长度限制，测试策略如下：
+
+```txt
+/*
+*  Testing strategy
+*
+*  1. 英语，5 个字符以内   "Yes"(1)|"No"(-1)|"SoSo"(0)
+*  2. 英语，超过 5 个字符  "Support"(1)|"Oppose"(-1)|"Waive"(0)
+*  3. 汉语，5 个字符以内   "支持"(1)|"不支持"(-1)|"无所谓"(0)
+*  4. 汉语，超过 5 个字符  "超级无敌支持"(1)|"不支持"(-1)|"无所谓"(0)
+*  5. 英语，无分数        "Yes"|"No"|"SoSo"
+*  6. 汉语，无分数        "支持"|"不支持"|"无所谓"
+*/
+```
+
+
 
 ### 3.4 任务13：应用设计与开发
 
