@@ -530,7 +530,7 @@ public class GeneralPollImpl<C> implements Poll<C> {
 }
 ```
 
-`GeneralPollImpl` 实现的其他部分简单模式即可，缺失部分稍后补充并进行测试。
+`GeneralPollImpl` 实现的其他部分简单模拟即可，缺失部分稍后补充并进行测试。
 
 #### 3.2.6 任务6：投票活动 `Poll<C>` 的子类型
 
@@ -1408,7 +1408,7 @@ B, 4
 
 上述针对新需求的修改都在 `change` 中完成，当前部分 `Git Graph` 如图：
 
-![image-20220626211035959](D:\Users\VonBrank\Documents\Source\Repos\Github\HIT-Software-Construction\HIT-Lab3-120L02****\doc\report.assets\image-20220626211035959.png)
+![image-20220626211035959](https://s1.ax1x.com/2022/06/26/jEYruT.png)
 
 
 
