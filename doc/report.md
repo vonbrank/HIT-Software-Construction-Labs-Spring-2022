@@ -26,6 +26,8 @@
 
 本次实验给定了多个具体应用，学生不是直接针对每个应用分别编程实现， 而是通过 ADT 和泛型等抽象技术，开发一套可复用的 ADT 及其实现，充分考虑 这些应用之间的相似性和差异性，使 ADT 有更大程度的复用（可复用性）和更 容易面向各种变化（可维护性）。
 
+
+
 ## 2 实验环境配置
 
 [这篇博客](https://blog.vonbrank.com/archives/hit-software-construction-lab1-config/)详细介绍了本人给出的在 IDEA 下配置本次实验的其中一种解决方案。
@@ -232,9 +234,7 @@ class VoteTypeTest {
 }
 ```
 
-
-
-#### 3.2.2 任务2：投票项 `VoteItem<C>` 
+#### 3.2.2 任务2：投票项 `VoteItem<C>`
 
  `VoteItem<C>` 是存储一张选票中，每个候选对象及其选项的对应关系，是 immutable 的，rep 等如下：
 
@@ -288,8 +288,6 @@ public class VoteItem<C> {
     }
 }
 ```
-
-
 
 #### 3.2.3 任务3：选票 `Vote`
 
@@ -420,8 +418,6 @@ class PollTest {
 
 其中 `DefaultCheckVoteValidityStrategy`  `DinnerOrderStatisticStrategy` `DinnerOrderSelectionStrategy` 等是计票过程中采用策略模式的辅助 ADT，稍后会实现。
 
-
-
 #### 3.2.5 任务5：投票活动 `Poll<C>` 的实现类 `GeneralPollImpl`
 
 我们知道，完成依次表决的大致流程为：
@@ -536,8 +532,6 @@ public class GeneralPollImpl<C> implements Poll<C> {
 
 `GeneralPollImpl` 实现的其他部分简单模式即可，缺失部分稍后补充并进行测试。
 
-
-
 #### 3.2.6 任务6：投票活动 `Poll<C>` 的子类型
 
 `Poll<C>` 的子类型的行为与父类存在部分差异，也有新特性。考虑到 `Election` `BusinessVoting` `DinnerOrder` 并不是 `Poll` 接口相同功能的不同实现，因此客户端使用时不宜采用依赖转置原则，即无需依赖其接口，而直接依赖其实现就行。
@@ -613,8 +607,6 @@ public class Election extends GeneralPollImpl<Person> implements Poll<Person> {
 ```
 
 要实现无参数调用 `statistics` `selection` 方法，只需要在新建的方法里调用原有的 `statisctis` 和 `selection` 并传入对应策略即可。
-
-
 
 ### 3.3 ADT行为的设计与实现
 
@@ -718,8 +710,6 @@ public interface CheckVoteValidityStrategy {
 
 实现方面，`DefaultCheckVoteValidityStrategy` 的 `checkAddVoteValidity` 用于检查默认状态下选票的上述前 $4$ 点要求，`ElectionCheckVoteValidityStrategy` 是前者的子类，额外检查第 $5$ 点要求。`checkVoteValidity` 是公用的，反正 `ElectionCheckVoteValidityStrategy` 受委托时也不会被调用，毕竟是匿名投票。
 
-
-
 #### 3.3.2 任务8：采用 Strategy 设计模式实现灵活的计票规则
 
 三种场景的计票方式各不相同，适合使用策略模式。计票策略的总接口为 `StatisticsStrategy` ，功能如下：
@@ -794,8 +784,6 @@ public class BusinessVotingStatisticStrategy implements StatisticsStrategy {
 ```
 
 单元测试代码照例模拟即可。
-
-
 
 #### 3.3.3 任务9：采用 Strategy 设计模式实现灵活的遴选规则
 
@@ -873,8 +861,6 @@ public class GeneralPollImpl<C> implements Poll<C> {
 ```
 
 照例模拟即可。
-
-
 
 #### 3.3.4 任务10：处理匿名和实名投票
 
@@ -987,9 +973,9 @@ public class VoteApp {
 }
 ```
 
-
-
 #### 3.3.5 任务11：采用 Visitor 设计模式实现功能扩展
+
+![Visitor](https://reactiveprogramming.io/books/patterns/img/patterns-articles/visitor-diagram.png)
 
 访问者模式是将数据与操作解耦的设计模式，要使用访问者模式操作 `Poll<C>` 中的数据，可以先定义访问者接口：
 
@@ -1047,27 +1033,25 @@ public class BusinessVotingApp {
 }
 ```
 
-
-
 #### 3.3.6 任务12：基于语法的数据读入
 
 这是针对 `VoteType` 的新需求，即要求传入一个形如 `"支持"(1)|"不支持"(-1)|"无所谓"(0)` 字符串，将其解析为选项与评分的映射。其中选项名称长度不大于 $5$ ，分数只允许整数。还需要支持形如 `"Yes"|"No"|"SoSo"` 的无得分选项。
 
 针对这两种情况，可以分别编写正则表达式：
 
-+ 有得分：`"[^"]+"\(-?\d\)(\|"[^"]+"\(-?\d\))*`
++ 有得分：`"[^"]+"\(-?\d+\)(\|"[^"]+"\(-?\d+\))*`
 
 + 无得分：`"[^"]+"(\|"[^"]+")*`
 
 只有通过这两种 regex 中的任意一种测试才能继续，否则将抛出自定义的 `StringFormatException` 异常。
 
-而后使用 `|` 分割字符串，依次使用表达式 `"[^"]{1,5}"` 匹配选项部分，`\(-?\d\)` 匹配数值部分（如果有的话），使用 Java 类库 `Pattern` 和 `Matcher` 截断出所需要的字符，完成匹配。
+而后使用 `|` 分割字符串，依次使用表达式 `"[^"]{1,5}"` 匹配选项部分，`\(-?\d+\)` 匹配数值部分（如果有的话），使用 Java 类库 `Pattern` 和 `Matcher` 截断出所需要的字符，完成匹配。
 
 ```java
 public class VoteType {
     public VoteType(String option) throws StringFormatException {
         String errorMsg = "选项格式错误，参考格式：\"喜欢\"(2)|\"不喜欢\"(0)|\"无所谓\"(1)。";
-        String regexWithScore = "\"[^\"]+\"\\(-?\\d\\)(\\|\"[^\"]+\"\\(-?\\d\\))*";
+        String regexWithScore = "\"[^\"]+\"\\(-?\\d+\\)(\\|\"[^\"]+\"\\(-?\\d+\\))*";
         String regexWithoutScore = "\"[^\"]+\"(\\|\"[^\"]+\")*";
         boolean withScore;
         if (option.matches(regexWithScore))
@@ -1077,7 +1061,7 @@ public class VoteType {
         } else throw new StringFormatException(errorMsg);
         List<String> optionsList = List.of(option.split("\\|"));
         Pattern optionNamePattern = Pattern.compile("\"[^\"]{1,5}\"");
-        Pattern optionScorePattern = Pattern.compile("\\(-?\\d\\)");
+        Pattern optionScorePattern = Pattern.compile("\\(-?\\d+\\)");
         ...// 以下内容此处略
     }
 }
@@ -1098,39 +1082,335 @@ public class VoteType {
 */
 ```
 
-
-
 ### 3.4 任务13：应用设计与开发
 
 #### 3.4.1 商业表决系统
 
+商业表决 App 参考实验指导给出的样例，$5$ 位董事权重分别为：$5\%, 51\%, 10\%, 24\%, 20\%$ ，分别为反对、支持、支持、反对、弃权。
+
+以此构造以下变量：`voteType` `proposal` `weightedVoters` `vote1~vote5` 然后调用 `BusinessVoting` 进行操作：
+
+```java
+public class BusinessVotingApp {
+
+	public static void main(String[] args) throws Exception {
+        ...
+		// 创建投票活动
+		BusinessVoting poll = new BusinessVoting();
+		// 设定投票基本信息：名称、日期、投票类型、选出的数量
+		poll.setInfo("商业表决", Calendar.getInstance(), voteType, 1);
+		// 增加候选人
+		poll.addCandidates(List.of(proposal));
+		// 增加投票人及其权重
+		poll.addVoters(weightedVoters);
+		// 添加选票
+		poll.addVote(vote1);
+		poll.addVote(vote2);
+		poll.addVote(vote3);
+		poll.addVote(vote4);
+		poll.addVote(vote5);
+		// 按规则计票
+		poll.statistics();
+		// 输出遴选结果
+		poll.selection();
+		VoteValidityRateVisitor<Proposal> voteValidityRateVisitor = new VoteValidityRateVisitor<>();
+		poll.accept(voteValidityRateVisitor);
+		System.out.println(poll);
+		System.out.printf("选票有效率为：%s\n", voteValidityRateVisitor.getVoteValidityRate());
+		System.out.println("结果：");
+		System.out.println(poll.result());
+    }
+}
+```
+
+输出结果：
+
+```txt
+name: 商业表决, candidates: (提案1)
+选票有效率为：1.0
+结果：
+表决未通过！
+```
+
 #### 3.4.2 代表选举系统
 
+代表选举系统可以直接使用代码框架提供的样例，补充使用 `Election` 的代码：
+
+```java
+public class ElectionApp {
+
+	public static void main(String[] args) {
+		...
+		// 创建投票活动
+		Poll<Person> poll = new Election();
+		// 设定投票基本信息：名称、日期、投票类型、选出的数量
+		poll.setInfo("选举", Calendar.getInstance(), vt, 2);
+		// 增加候选人
+		poll.addCandidates(List.of(p1, p2, p3));
+		// 增加投票人及其权重
+		poll.addVoters(weightedVoters);
+		poll.setCheckVoteValidityStrategy(new ElectionCheckVoteValidityStrategy(2));
+		// 增加三个投票人的选票
+		poll.addVote(rv1);
+		poll.addVote(rv2);
+		// 按规则计票
+		poll.statistics(new ElectionStatisticStrategy());
+		// 按规则遴选
+		poll.selection(new ElectionSelectionStrategy(2));
+		VoteValidityRateVisitor<Person> voteValidityRateVisitor = new VoteValidityRateVisitor<>();
+		poll.accept(voteValidityRateVisitor);
+		// 输出遴选结果
+		System.out.println(poll);
+		System.out.printf("选票有效率为：%s\n", voteValidityRateVisitor.getVoteValidityRate());
+		System.out.println("结果：");
+		System.out.println(poll.result());
+	}
+}
+
+```
+
+输出结果：
+
+```txt
+name: 选举, candidates: (ABC, DEF, GHI)
+选票有效率为：1.0
+结果：
+GHI, 1
+ABC, 2
+```
+
 #### 3.4.3 聚餐点菜系统
+
+点菜系统使用实验指导中的样例，创建以下对象：
+
+`voterGrandpa` `voterDad` `voterMum` `voterSon` `weightedVoters` `dishA~dishF` 等，然后调用 `DinnerOrder` 进行投票：
+
+```java
+public class DinnerOrderApp {
+    public static void main(String[] args) throws Exception {
+		...
+        // 创建投票活动
+        DinnerOrder poll = new DinnerOrder();
+        // 设定投票基本信息：名称、日期、投票类型、选出的数量
+        poll.setInfo("点菜", Calendar.getInstance(), voteType, 4);
+        // 增加候选人
+        poll.addCandidates(List.of(dishA, dishB, dishC, dishD, dishE, dishF));
+        // 增加投票人及其权重
+        poll.addVoters(weightedVoters);
+        // 添加选票
+        poll.addVote(voteGrandpa);
+        poll.addVote(voteDad);
+        poll.addVote(voteMum);
+        poll.addVote(voteSon);
+        // 按规则计票
+        poll.statistics();
+        // 输出遴选结果
+        poll.selection();
+        VoteValidityRateVisitor<Dish> voteValidityRateVisitor = new VoteValidityRateVisitor<>();
+        poll.accept(voteValidityRateVisitor);
+        System.out.println(poll);
+        System.out.printf("选票有效率为：%s\n", voteValidityRateVisitor.getVoteValidityRate());
+        System.out.println("结果：");
+        System.out.println(poll.result());
+    }
+}
+```
+
+输出结果为：
+
+```txt
+name: 点菜, candidates: (A, B, C, D, E, F)
+选票有效率为：1.0
+结果：
+A, 1
+D, 2
+C, 3
+B, 4
+```
 
 ### 3.5 任务14：应对面临的新变化
 
 #### 3.5.1 商业表决应用：可以一次表决多个商业提案
 
-评估之前的设计是否可应对变化、代价如何
++ 评估之前的设计是否可应对变化、代价如何：
 
-如何修改设计以应对变化
+  先前的功能无法直接使用， `BusinessVotingSelectionStrategy` `BusinessVotingStatisticStrategy` 等均要求 `quantity` 为 $1$ 。
+
++ 如何修改设计以应对变化
+
+  取消相关限制，将允许数设置为 `quantity` ，`quantity` 默认值为 $1$ ，可以在初始化时修改，即将 `BusinessVotingSelectionStrategy ` 改为：
+
+  ```java
+  public class BusinessVotingSelectionStrategy implements SelectionStrategy {
+      // 提案数量
+      int quantity;
+      public BusinessVotingSelectionStrategy() {
+          quantity = 1;
+      }
+      public BusinessVotingSelectionStrategy(int quantity) {
+          this.quantity = quantity;
+      }
+      @Override
+      public <C> Map<C, Double> getSelectionResult(Map<C, Double> statistics) {
+          if (statistics.size() != quantity) throw new RuntimeException(String.format("候选提案数只能为 %d .", quantity));
+          Map<C, Double> res = new HashMap<>();
+          for (C candidate : statistics.keySet()) {
+              if (!(statistics.get(candidate) >= 0 && statistics.get(candidate) <= 100))
+                  throw new RuntimeException("提案支持率百分比应该在 0 - 100 之间");
+              res.put(candidate, statistics.get(candidate) >= 200 / 3.0 ? 1.0 : 0.0);
+          }
+          return res;
+      }
+  }
+  ```
+
+  `BusinessVotingStatisticStrategy` 改为：
+
+  ```java
+  public class BusinessVotingStatisticStrategy implements StatisticsStrategy {
+      // 提案数量
+      int quantity;
+      public BusinessVotingStatisticStrategy () {
+          quantity = 1;
+      }
+      public BusinessVotingStatisticStrategy (int quantity) {
+          this.quantity = quantity;
+      }
+      @Override
+      public <Proposal> Map<Proposal, Double> getVoteStatistics(
+              VoteType voteType, Map<Voter, Double> voters, 
+          	List<Proposal> candidates, Set<Vote<Proposal>> votes) {
+          if (candidates.size() != quantity) 
+              throw new RuntimeException(String.format("候选提案数只能为 %d .", quantity));
+          Map<Proposal, Double> res = new HashMap<>();
+          candidates.forEach(candidate -> res.put(candidate, 0.0));
+          votes.forEach(vote -> {
+              if (!(vote instanceof RealNameVote)) throw new RuntimeException("商业提案为实名计票");
+              RealNameVote<Proposal> realNameVote = (RealNameVote<Proposal>) vote;
+              double weight = voters.get(((RealNameVote<Proposal>) vote).getVoter());
+              vote.getVoteItems().forEach(voteItem -> {
+                  Proposal candidate = voteItem.getCandidate();
+                  if (voteItem.getVoteValue().equals("支持")) {
+                      double newWeight = res.get(candidate) + weight;
+                      res.put(candidate, newWeight);
+                  }
+              });
+          });
+          return res;
+      }
+  }
+  ```
 
 #### 3.5.2 代表选举应用：遴选规则变化
 
-评估之前的设计是否可应对变化、代价如何
++ 评估之前的设计是否可应对变化、代价如何：
 
-如何修改设计以应对变化
+  当前设计无法应对变化，因为新需求要求考虑同一个候选人的两个指标：“支持数” 和 “反对数” ，当前只能支持一种指标。
+
++ 如何修改设计以应对变化
+
+  在不大规模修改 rep 的情况下，可以使用一个一个数编码两个数的组合，即稍加修改 `ElectionSelectionStrategy` 和 `ElectionStatisticStrategy` ，并引入 `AccurateElectionSelectionStrategy` 和 `AccurateElectionStatisticStrategy` 作为其子类。
+
+  先前候选对象的所有选票，只做如下操作：
+
+  ```java
+  double score = res.get(candidate) + voteType.getScoreByOption(voteItem.getVoteValue());
+  res.put(candidate, score);
+  ```
+
+  现在将这一过程抽象成方法：
+
+  ```java
+  protected int encodeScore(int previousScore, int delta) {
+      return previousScore + delta;
+  }
+  ...
+  int delta = voteType.getScoreByOption(voteItem.getVoteValue());
+  double score = encodeScore(res.get(candidate).intValue(), delta);
+  res.put(candidate, score);
+  ```
+
+  在子类中重写这一方法实现编码过程：
+
+  ```java
+  private static int encodeScoreBase = (1 << 15);
+  @Override
+  protected int encodeScore(int previousScore, int delta) {
+      int first = previousScore / encodeScoreBase;
+      int second = previousScore % encodeScoreBase;
+      if(delta > 0) first++;
+      if(delta < 0) second++;
+      return first * encodeScoreBase + second;
+  }
+  ```
+
+  遴选时只需要修改排序策略，将 `Compatator` 分离出来，`ElectionSelectionStrategy` 中是：
+
+  ```java
+  protected Comparator<Node> cmp = (node1, node2) -> (int) Math.round(node2.score - node1.score);
+  ...
+  nodeList.sort(cmp);
+  ```
+
+  子类 `AccurateElectionStatisticStrategy` 将其重写为：
+
+  ```java
+  protected Comparator<Node> cmp = (node1, node2) -> {
+      int score1 = (int) node1.score;
+      int score2 = (int) node2.score;
+      int first1 = score1 / encodeScoreBase;
+      int second1 = score1 % encodeScoreBase;
+      int first2 = score2 / encodeScoreBase;
+      int second2 = score2 % encodeScoreBase;
+      if(first1 != first2) return first1 - first2;
+      return second1 - second2;
+  };
+  ```
+
+  即可适应新需求。
 
 #### 3.5.3 聚餐点菜应用：取消权重设置、只计算“喜欢”的票数
 
-评估之前的设计是否可应对变化、代价如何
++ 评估之前的设计是否可应对变化、代价如何
 
-如何修改设计以应对变化
+  当前需求考虑了权重，但新需求需要忽略客户端的任何输入。
+
++ 如何修改设计以应对变化
+
+  因此考虑新建 `DinnerOrderStatisticStrategy` 的子类 `NoWeightDinnerOrderStatisticStrategy` 。与 `Election` 类似，将关键部分抽象成方法，并在子类中重写：
+
+  `DinnerOrderStatisticStrategy` 修改为：
+
+  ```java
+  protected double calculateScore(double previousScore, double weight, double score) {
+      return previousScore + weight * score;
+  }
+  ...
+  Dish candidate = voteItem.getCandidate();
+  double score = calculateScore(res.get(candidate), weight, voteType.getScoreByOption(voteItem.getVoteValue()));
+  res.put(candidate, score);
+  ```
+
+  任何在子类 `NoWeightDinnerOrderStatisticStrategy` 重写该方法：
+
+  ```java
+  protected double calculateScore(double previousScore, double weight, double score) {
+      if((int) score == maxOptionScore) previousScore += 1;
+      return previousScore;
+  }
+  ```
+
+  即可适应新需求。
 
 ### 3.6 Git仓库结构
 
 请在完成全部实验要求之后，利用 `git log` 指令或 Git 图形化客户端或 GitHub 上项目仓库的 Insight 页面，给出你的仓库到目前为止的 Object Graph ，尤其是区分清楚 change 分支和 master 分支所指向的位置。
+
+上述针对新需求的修改都在 `change` 中完成，当前部分 `Git Graph` 如图：
+
+![image-20220626211035959](D:\Users\VonBrank\Documents\Source\Repos\Github\HIT-Software-Construction\HIT-Lab3-120L02****\doc\report.assets\image-20220626211035959.png)
+
+
 
 ## 4 实验进度记录
 
@@ -1140,51 +1420,72 @@ public class VoteType {
 
 不要嫌烦，该表格可帮助你汇总你在每个任务上付出的时间和精力，发现自己不擅长的任务，后续有意识的弥补。
 
-|     日期     |    时间段     |                           计划任务                           | 实际完成情况 |
-| :----------: | :-----------: | :----------------------------------------------------------: | :----------: |
-| `2022-06-02` | `10:30-11:30` |                           项目配置                           |     完成     |
-| `2022-06-04` | `10:30-12:00` |                   `VoteType` 的设计与实现                    |     完成     |
-| `2022-06-04` | `15:45-17:00` |                `VoteItem` `Vote` 的设计与实现                |     完成     |
-| `2022-06-04` | `20:00-20:30` |               `Poll<Dish>` 部分单元测试的编写                |     完成     |
-| `2022-06-05` | `20:00-21:15` |        `GeneralPollImpl` 的单元测试<br>与部分功能编写        |     完成     |
-| `2022-06-22` | `15:00-18:30` | `GeneralPollImpl` 及其子类部分设计与实现<br>计票有效性检查设计 |     完成     |
-| `2022-06-22` | `19:30-22:00` | `ChechVoteValidityStrategy` 及其子类的设计、实现、测试<br>`StatisticsStrategy` 及其子类的设计、实现、测试 |     完成     |
-| `2022-06-23` | `09:30-10:15` | `StatisticsStrategy` 重构为<br>支持 `Map<Voter, Double>` 传入投票人及其权重 |     完成     |
-| `2022-06-23` | `20:00-00:30` | 完成 `SelectionStrategy`及其子类的设计、实现、测试<br>为`Dish` `Person` `Proposal` `Voter` 重写 `toString` 方法 |     完成     |
-| `2022-06-24` | `17:30-20:00` |              完成`Poll`继承树的设计、实现、测试              |     完成     |
-| `2022-06-25` | `10:00-11:00` |               为 `Poll` 接口添加访问者模式特性               |     完成     |
-| `2022-06-25` | `16:00-18:00` | 为`VoteType`添加 regex 构造器，并进行测试<br>完成 `BusinessVotingApp` `DinnerOrderApp` `ElectionApp` 设计与实现 |     完成     |
-| `2022-06-25` | `19:00-23:00` | 为项目添加本地依赖项与持续集成<br>修复一些 bug <br>在 `change` 分支上实现新需求 |     完成     |
+|     日期     |                       时间段                        |                           计划任务                           | 实际完成情况 |
+| :----------: | :-------------------------------------------------: | :----------------------------------------------------------: | :----------: |
+| `2022-06-02` |                    `10:30-11:30`                    |                           项目配置                           |     完成     |
+| `2022-06-04` |                    `10:30-12:00`                    |                   `VoteType` 的设计与实现                    |     完成     |
+| `2022-06-04` |                    `15:45-17:00`                    |                `VoteItem` `Vote` 的设计与实现                |     完成     |
+| `2022-06-04` |                    `20:00-20:30`                    |               `Poll<Dish>` 部分单元测试的编写                |     完成     |
+| `2022-06-05` |                    `20:00-21:15`                    |        `GeneralPollImpl` 的单元测试<br>与部分功能编写        |     完成     |
+| `2022-06-22` |                    `15:00-18:30`                    | `GeneralPollImpl` 及其子类部分设计与实现<br>计票有效性检查设计 |     完成     |
+| `2022-06-22` |                    `19:30-22:00`                    | `ChechVoteValidityStrategy` 及其子类的设计、实现、测试<br>`StatisticsStrategy` 及其子类的设计、实现、测试 |     完成     |
+| `2022-06-23` |                    `09:30-10:15`                    | `StatisticsStrategy` 重构为<br>支持 `Map<Voter, Double>` 传入投票人及其权重 |     完成     |
+| `2022-06-23` |                    `20:00-00:30`                    | 完成 `SelectionStrategy`及其子类的设计、实现、测试<br>为`Dish` `Person` `Proposal` `Voter` 重写 `toString` 方法 |     完成     |
+| `2022-06-24` |                    `17:30-20:00`                    |              完成`Poll`继承树的设计、实现、测试              |     完成     |
+| `2022-06-25` |                    `10:00-11:00`                    |               为 `Poll` 接口添加访问者模式特性               |     完成     |
+| `2022-06-25` |                    `16:00-18:00`                    | 为`VoteType`添加 regex 构造器，并进行测试<br>完成 `BusinessVotingApp` `DinnerOrderApp` `ElectionApp` 设计与实现 |     完成     |
+| `2022-06-25` |                    `19:00-23:00`                    | 为项目添加本地依赖项与持续集成<br>修复一些 bug <br>在 `change` 分支上实现新需求 |     完成     |
+| `2022-06-26` | `10:00-11:45`<br>`16:00-18:15`<br>`19:30-22:00`<br> |                            写报告                            |     完成     |
+
+
 
 ## 5 实验过程中遇到的困难与解决途径
 
-| 遇到的难点 | 解决途径 |
-| :--------: | :------: |
-|            |          |
-|            |          |
-|            |          |
+|               遇到的难点               |                    解决途径                    |
+| :------------------------------------: | :--------------------------------------------: |
+| 实验指导存在时序问题，按顺序看难以理解 |    先把实验指导整体看一遍、了解需求会好一些    |
+|  现有 rep 难以满足 `Election`  新需求  | 尝试用一个 `Integer` 编码两个 `Integer` 的组合 |
+|             报告太多写不完             |                      硬写                      |
+
+
 
 ## 6 实验过程中收获的经验、教训、感想
 
 ### 6.1 实验过程中收获的经验和教训（必答）
 
+本次实验给出了三个具有共同特征的应用场景，可以很好地帮助练习面向对象程序设计基础，任务穿插面向对象设计原则、设计模式原则的使用、正则表达式的使用、Git 版本控制系统的使用，是这些技术的良好实践；实验变更需求的部分可以让人了解到遵循软件复用的一些规则、良好的架构，对提升软件开发与维护的效率有重要作用。
+
 ### 6.2 针对以下方面的感受（必答）
 
-(1)  重新思考 Lab2 中的问题：面向 ADT 的编程和直接面向应用场景编程，你体会到二者有何差异？本实验设计的 ADT 在三个不同的应用场景下使用，你是否体会到复用的好处？
+1. **重新思考 Lab2 中的问题：面向 ADT 的编程和直接面向应用场景编程，你体会到二者有何差异？本实验设计的 ADT 在三个不同的应用场景下使用，你是否体会到复用的好处？**
 
-(2)  重新思考 Lab2 中的问题：为 ADT 撰写复杂的 specification, invariants, RI, AF，时刻注意 ADT是否有 rep exposure，这些工作的意义是什么？你是否愿意在以后的编程中坚持这么做？
+   面向 ADT 编程将基于一些 OOP 设计理念，提升代码复用性，降低后期开发难度；面向场景编程，前期开发难度低，后期维护成本高。通过三个场景的共性，相似逻辑的代码只用写一次，体现复用的好处。
 
-(3)  之前你将别人提供的 ADT/API 用于自己的程序开发中，本次实验你尝试着开发给别人使用的 ADT/API ，是否能够体会到其中的难处和乐趣？
+2. **重新思考 Lab2 中的问题：为 ADT 撰写复杂的 specification, invariants, RI, AF，时刻注意 ADT是否有 rep exposure，这些工作的意义是什么？你是否愿意在以后的编程中坚持这么做？**
 
-(4)  你之前在使用其他软件时，应该体会过输入各种命令向系统发出指令。本次实验你开发了一个简单的解析器，使用语法和正则表达式去解析一个遵循特定规则的字符串并据此构造对象。你对语法驱动编程有何感受？
+   这些工作主要用于降低 bug 的发生频率，对程序的正确性提升有重要意义。之后开发将尽量遵守这些原则。
 
-(5)  Lab1和Lab2的工作都不是从0开始，而是基于他人给出的设计方案和初始代码。本次实验中也提供了一部分基础代码。假如本实验要求你完全从0开始进行ADT的设计并用OOP实现，你觉得自己是否能够完全搞定？你认为“设计ADT”的难度主要体现在哪些地方？
+3. **之前你将别人提供的 ADT/API 用于自己的程序开发中，本次实验你尝试着开发给别人使用的 ADT/API ，是否能够体会到其中的难处和乐趣？**
 
-(6)  “抽象”是计算机科学的核心概念之一，也是ADT和OOP的精髓所在。本实验的三个应用既不能完全抽象为同一个ADT，也不是完全个性化，如何利用“接口、抽象类、类”三层体系以及接口的组合、类的继承、委派、设计模式等技术完成最大程度的抽象和复用，你有什么经验教训？
+   难点在于面对复杂的需求，要从中梳理出可复用的部分和需要多态的部分，并写出可维护性、可扩展性强的代码；乐趣同样在于，使用设计模式，可以开发出可维护性、可扩展性强的软件。
 
-(7)  关于本实验的工作量、难度、deadline。
+4. **你之前在使用其他软件时，应该体会过输入各种命令向系统发出指令。本次实验你开发了一个简单的解析器，使用语法和正则表达式去解析一个遵循特定规则的字符串并据此构造对象。你对语法驱动编程有何感受？**
 
-(8)  课程结束了，你对《软件构造》课程内容和任课教师的评价如何？
+   传统上，对字符串进行匹配可能使用 KMP 等算法实现。使用正则表达式及其匹配引擎可以大大降低字符串处理的难度。
 
- 
+5. **Lab1和Lab2的工作都不是从0开始，而是基于他人给出的设计方案和初始代码。本次实验中也提供了一部分基础代码。假如本实验要求你完全从0开始进行ADT的设计并用OOP实现，你觉得自己是否能够完全搞定？你认为“设计ADT”的难度主要体现在哪些地方？**
+
+   我认为可以完全搞定。ADT 的难度主要体现在架构上，最重要的同样是架构，它决定了后期的维护与开发成本是高还是低。
+
+6. **“抽象”是计算机科学的核心概念之一，也是ADT和OOP的精髓所在。本实验的三个应用既不能完全抽象为同一个ADT，也不是完全个性化，如何利用“接口、抽象类、类”三层体系以及接口的组合、类的继承、委派、设计模式等技术完成最大程度的抽象和复用，你有什么经验教训？**
+
+   开发过程中一旦遇见到未来可能出现的需求，就应该立刻选择相应的设计模式等进行重构，一遍未来出现新需求时能够高效开发。
+
+7. **关于本实验的工作量、难度、deadline。**
+
+   本实验工作量较大，难度适中，deadline 安排在考试之后还算合理。但是实验指导较为混乱，有多处漏洞与错误，代码框架同样存在一些违反设计原则的地方，值得日后改进。
+
+8. **课程结束了，你对《软件构造》课程内容和任课教师的评价如何？**
+
+   《软件构造》课程是计算机专业一门比较重要的实践课，通过讲述软件开发中面向对象程序设计的基本概念、架构与最佳实践，能够获得开发应用程序的一些经验。今后的《软件构造》课程的教学中，希望将所有任课教师的讲授能力提升到同一水平；也可以将最优质的课程资源录制成 MOOC，供全年级老师和学生参考。
 
