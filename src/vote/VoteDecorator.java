@@ -17,7 +17,7 @@ public abstract class VoteDecorator<C> implements Voteable<C> {
      */
     @Override
     public Set<VoteItem<C>> getVoteItems() {
-        return null;
+        return target.getVoteItems();
     }
 
     /**
@@ -28,6 +28,6 @@ public abstract class VoteDecorator<C> implements Voteable<C> {
      */
     @Override
     public boolean candidateIncluded(C candidate) {
-        return false;
+        return target.candidateIncluded(candidate);
     }
 }
