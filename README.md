@@ -1,6 +1,8 @@
+# 哈工大软件构造实验 - 2022年春 &middot; ![HIT-CS32123](https://img.shields.io/badge/HIT-CS32123-red) ![License](https://img.shields.io/badge/License-GPL-green) ![Mail](https://img.shields.io/badge/Email-vonbrank@outlook.com-blue?style=flat&logo=mail.cn)
+
 ## 快速开始
 
-哈尔滨工业大学【CS32123: 软件构造】课程在 2022 年春季学期共设计了三次实验。三次实验的源码分别在 [`lab1-master`](https://github.com/vonbrank/HIT-Software-Construction-Labs-Spring-2022/tree/lab1-master) [`lab2-master`](https://github.com/vonbrank/HIT-Software-Construction-Labs-Spring-2022/tree/lab2-master) 和 [`lab3-master`](https://github.com/vonbrank/HIT-Software-Construction-Labs-Spring-2022/tree/lab3-master) 分支，额外的 [`lab3-change`](https://github.com/vonbrank/HIT-Software-Construction-Labs-Spring-2022/tree/lab3-change) 源自实验三的新需求，详见实验指导分支 `lab-manuals`。
+哈尔滨工业大学【CS32123: 软件构造】课程在 2022 年春季学期共设计了三次实验。三次实验的源码分别在 [`lab1-master`](https://github.com/vonbrank/HIT-Software-Construction-Labs-Spring-2022/tree/lab1-master) [`lab2-master`](https://github.com/vonbrank/HIT-Software-Construction-Labs-Spring-2022/tree/lab2-master) 和 [`lab3-master`](https://github.com/vonbrank/HIT-Software-Construction-Labs-Spring-2022/tree/lab3-master) 分支，额外的 [`lab3-change`](https://github.com/vonbrank/HIT-Software-Construction-Labs-Spring-2022/tree/lab3-change) 源自实验三的新需求，详见实验指导分支 [`lab-manuals`](https://github.com/vonbrank/HIT-Software-Construction-Labs-Spring-2022/tree/lab-manuals)。
 
 三次实验均使用 [Gradle](https://gradle.org/) 进行项目管理，可以使用如下命令进行构建：
 
@@ -29,9 +31,11 @@ java [options] -jar <jar filename> [args...]
 
 ---
 
+# HIT Software Construction Labs - Spring 2022 &middot; ![HIT-CS32123](https://img.shields.io/badge/HIT-CS32123-red) ![License](https://img.shields.io/badge/License-GPL-green) ![Mail](https://img.shields.io/badge/Email-vonbrank@outlook.com-blue?style=flat&logo=mail.cn)
+
 ## Getting Started
 
-Three labs were designed for the course \[CS32123: Software Construction\] at Harbin Institute of Technology. The source code for the three experiments is available in  [`lab1-master`](https://github.com/vonbrank/HIT-Software-Construction-Labs-Spring-2022/tree/lab1-master) [`lab2-master`](https://github.com/vonbrank/HIT-Software-Construction-Labs-Spring-2022/tree/lab2-master) and [`lab3-master`](https://github.com/vonbrank/HIT-Software-Construction-Labs-Spring-2022/tree/lab3-master)  branches. The additional [`lab3-change`](https://github.com/vonbrank/HIT- Software-Construction-Labs-Spring-2022/tree/lab3-change) is derived from the new requirements of lab-3, and you can see the `lab-manuals` branch for details. 
+Three labs were designed for the course \[CS32123: Software Construction\] at Harbin Institute of Technology. The source code for the three experiments is available in  [`lab1-master`](https://github.com/vonbrank/HIT-Software-Construction-Labs-Spring-2022/tree/lab1-master) [`lab2-master`](https://github.com/vonbrank/HIT-Software-Construction-Labs-Spring-2022/tree/lab2-master) and [`lab3-master`](https://github.com/vonbrank/HIT-Software-Construction-Labs-Spring-2022/tree/lab3-master)  branches. The additional [`lab3-change`](https://github.com/vonbrank/HIT- Software-Construction-Labs-Spring-2022/tree/lab3-change) is derived from the new requirements of lab-3, and you can see the [`lab-manuals`](https://github.com/vonbrank/HIT-Software-Construction-Labs-Spring-2022/tree/lab-manuals) branch for details. 
 
 All three labs are managed by the project management tool [Gradle](https://gradle.org/) and can be built with the following command: 
 
